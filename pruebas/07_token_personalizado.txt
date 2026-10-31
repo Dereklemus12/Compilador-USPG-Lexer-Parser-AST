@@ -1,2 +1,7 @@
-entero limite = 20;
-si (limite >= 10) { imprimir limite; }
+entero numero = 10;
+entero divisor = 3;
+entero residuo = numero % divisor;
+
+si (residuo == 1) {
+    imprimir residuo;
+}

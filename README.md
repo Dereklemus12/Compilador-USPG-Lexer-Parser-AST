@@ -20,3 +20,42 @@ python -m unittest discover -s pruebas -p "test_*.py" -v
 - `notebooks/`: documentación y ejercicio LR(0), independiente del parser principal.
 
 Esta entrega **no incluye** semántica ni ejecución de código fuente.
+
+## Evidencias de ejecución
+
+El proyecto incluye cuatro Jupyter Notebooks:
+
+1. Construcción de la colección LR(0), ACTION/GOTO y análisis de abb.
+2. Reconocimiento léxico y generación de tokens.
+3. Integración del parser y construcción del AST.
+4. Pruebas de integración y detección de errores.
+
+Las salidas ejecutadas se almacenan en
+`evidencias/notebooks_ejecutados/`.
+
+## Extensión del analizador léxico
+
+Se conserva el lexer original de la primera entrega.
+
+Adicionalmente, se incorpora el operador módulo `%`
+como token `OP_MODULO`.
+
+El parser reconoce este operador con la misma
+precedencia que multiplicación y división.
+
+Ejemplo:
+
+    entero residuo = 10 % 3;
+
+La extensión se verifica mediante
+`test_operador_modulo` y el archivo
+`07_token_personalizado.txt`.
+
+## Pruebas
+
+Para ejecutar las pruebas automatizadas:
+
+    python -m unittest discover -s pruebas -p "test_*.py" -v
+
+La entrega no incluye análisis semántico
+ni ejecución de instrucciones.

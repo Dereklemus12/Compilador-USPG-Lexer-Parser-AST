@@ -103,9 +103,22 @@ class Parser:
 
     def producto(self):
         izquierda = self.unario()
-        while self.actual.tipo == 'OP_ARIT' and self.actual.valor in ('*', '/'):
-            op = self.avanzar().valor
-            izquierda = OpBinaria(izquierda, op, self.unario())
+
+        while (
+            self.actual.tipo == 'OP_MODULO'
+            or (
+                self.actual.tipo == 'OP_ARIT'
+                and self.actual.valor in ('*', '/')
+            )
+        ):
+            operador = self.avanzar().valor
+            derecha = self.unario()
+
+            izquierda = OpBinaria(
+                izquierda,
+                operador,
+                derecha
+            )
         return izquierda
 
     def unario(self):

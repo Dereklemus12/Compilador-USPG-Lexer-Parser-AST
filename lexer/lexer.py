@@ -31,6 +31,7 @@ class Lexer:
 
             # Operadores Aritméticos 
             ('OP_ARIT',     r'[\+\-\*/]'),
+            ('OP_MODULO', r'%'),
 
             # Símbolos de Estructura 
             ('PUNTO_COMA',  r';'),

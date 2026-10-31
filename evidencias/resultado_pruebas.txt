@@ -1,17 +1,12 @@
-﻿python : test_eof (test_integracion.Integracion.test_eof) ... ok
-En línea: 1 Carácter: 1
-+ python -m unittest discover -s pruebas -p "test_*.py" -v 2>&1 |
-+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    + CategoryInfo          : NotSpecified: (test_eof (test_...est_eof) ... ok:String) [], RemoteException
-    + FullyQualifiedErrorId : NativeCommandError
- 
+test_eof (test_integracion.Integracion.test_eof) ... ok
 test_error_lexico (test_integracion.Integracion.test_error_lexico) ... ok
 test_error_sintactico (test_integracion.Integracion.test_error_sintactico) ... ok
+test_operador_modulo (test_integracion.Integracion.test_operador_modulo) ... ok
 test_precedencia (test_integracion.Integracion.test_precedencia) ... ok
 test_token_anterior (test_integracion.Integracion.test_token_anterior) ... ok
 test_valido (test_integracion.Integracion.test_valido) ... ok
 
 ----------------------------------------------------------------------
-Ran 6 tests in 0.001s
+Ran 7 tests in 0.002s
 
 OK

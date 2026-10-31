@@ -1,7 +1,9 @@
 import unittest
 from main import compilar
 from lexer.lexer import Lexer
+from parser.parser import Parser
 from arbol_ast.nodos import Declaracion, OpBinaria
+
 
 class Integracion(unittest.TestCase):
     def test_eof(self):
@@ -28,6 +30,23 @@ class Integracion(unittest.TestCase):
 
     def test_token_anterior(self):
         self.assertEqual(Lexer('si (x >= 1) {}').analizar()[0].tipo, 'PR_SI')
+
+    def test_operador_modulo(self):
+        codigo = "entero residuo = 10 % 3;"
+
+        tokens = Lexer(codigo).analizar()
+
+        self.assertTrue(
+            any(t.tipo == "OP_MODULO" and t.valor == "%" for t in tokens)
+        )
+
+        arbol = Parser(tokens).parsear()
+        declaracion = arbol.sentencias[0]
+
+        self.assertEqual(declaracion.valor.operador, "%")
+        self.assertEqual(declaracion.valor.izquierda.valor, 10)
+        self.assertEqual(declaracion.valor.derecha.valor, 3)
+
 
 if __name__ == '__main__':
     unittest.main()
