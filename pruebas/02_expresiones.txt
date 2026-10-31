@@ -1,0 +1,2 @@
+entero x = 2 + 3 * 4;
+imprimir (x + 2) / 2;

@@ -1,0 +1,8 @@
+entero x = 10;
+entero limite = 20;
+mientras (x <= limite) {
+    si (x != 15) {
+        imprimir x;
+    }
+    x = x + 2;
+}

@@ -1,0 +1,1 @@
+imprimir variable_no_declarada;

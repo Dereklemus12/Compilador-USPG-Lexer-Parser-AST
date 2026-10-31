@@ -1,0 +1,2 @@
+entero x = 0;
+mientras (x < 3) { si (x == 1) { imprimir x; } x = x + 1; }

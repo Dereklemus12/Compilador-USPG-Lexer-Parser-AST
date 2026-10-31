@@ -1,0 +1,2 @@
+entero limite = 20;
+si (limite >= 10) { imprimir limite; }
