@@ -133,6 +133,8 @@ consola: cinco válidos y once rechazos esperados. Las salidas reales están en
 - [Guía técnica, procedencia y reglas](docs/06_GUIA_ANALISIS_SEMANTICO.md).
 - [Guía de ejecución y reproducción](docs/07_GUIA_EJECUCION_ENTREGA_SEMANTICA.md).
 - [Guion de exposición](docs/08_GUION_EXPOSICION_SEMANTICA.md).
+- [Bitácora de procedimientos realizados](docs/09_BITACORA_PROCEDIMIENTOS_ENTREGA_SEMANTICA.md):
+  auditoría, decisiones, implementación, comandos, pruebas y publicación en GitHub.
 - [Notebook de análisis semántico](notebooks/05_Analisis_Semantico.ipynb), con
   importaciones reales, ejemplos, tabla, errores y suite de pruebas.
 
