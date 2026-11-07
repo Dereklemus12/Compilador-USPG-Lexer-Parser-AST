@@ -1,0 +1,21 @@
+Comando: python main.py pruebas/12_error_condicion_no_booleana.txt
+Código de salida: 1
+
+=== TOKENS ===
+[Token(tipo='PR_SI', valor='si', linea=1, columna=1),
+ Token(tipo='PAR_IZQ', valor='(', linea=1, columna=4),
+ Token(tipo='NUMERO', valor='3', linea=1, columna=5),
+ Token(tipo='PAR_DER', valor=')', linea=1, columna=6),
+ Token(tipo='LLAVE_IZQ', valor='{', linea=1, columna=8),
+ Token(tipo='PR_IMPRIMIR', valor='imprimir', linea=1, columna=10),
+ Token(tipo='NUMERO', valor='1', linea=1, columna=19),
+ Token(tipo='PUNTO_COMA', valor=';', linea=1, columna=20),
+ Token(tipo='LLAVE_DER', valor='}', linea=1, columna=22),
+ Token(tipo='EOF', valor='', linea=2, columna=1)]
+=== AST ===
+Programa(sentencias=[Si(condicion=Numero(valor=3),
+                        cuerpo=[Imprimir(expresion=Numero(valor=1))])])
+=== SEMANTICA ===
+[Error Semantico] Condición de 'si' exige 'booleano', se recibió 'entero'.
+Tabla parcial al detenerse en el primer error:
+{}

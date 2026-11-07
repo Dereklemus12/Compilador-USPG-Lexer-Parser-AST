@@ -1,0 +1,8 @@
+Pruebas ejecutadas: 41
+Fallos: 0
+Errores: 0
+Omitidas: 0
+Programas CLI verificados: 16 (5 válidos; 11 errores esperados).
+Tokens y AST presentes en los casos sintácticamente válidos.
+Módulo: 07_token_personalizado válido; 16_error_modulo_booleano rechazado.
+Tabla global: ver evolucion_tabla_simbolos.txt.

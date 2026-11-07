@@ -1,0 +1,6 @@
+Notebook validado con nbformat.
+24 celdas; 12 de código ejecutadas en orden (1 a 12).
+Sin salidas de error.
+Última salida:
+Resultado verificado: 41 pruebas, 0 fallos y 0 errores.
+Módulo y tabla global comprobados con los módulos reales del proyecto.

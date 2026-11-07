@@ -1,0 +1,22 @@
+Comando: python main.py pruebas/09_error_variable_duplicada.txt
+Código de salida: 1
+
+=== TOKENS ===
+[Token(tipo='PR_ENTERO', valor='entero', linea=1, columna=1),
+ Token(tipo='ID', valor='x', linea=1, columna=8),
+ Token(tipo='OP_ASIG', valor='=', linea=1, columna=10),
+ Token(tipo='NUMERO', valor='1', linea=1, columna=12),
+ Token(tipo='PUNTO_COMA', valor=';', linea=1, columna=13),
+ Token(tipo='PR_ENTERO', valor='entero', linea=2, columna=1),
+ Token(tipo='ID', valor='x', linea=2, columna=8),
+ Token(tipo='OP_ASIG', valor='=', linea=2, columna=10),
+ Token(tipo='NUMERO', valor='2', linea=2, columna=12),
+ Token(tipo='PUNTO_COMA', valor=';', linea=2, columna=13),
+ Token(tipo='EOF', valor='', linea=3, columna=1)]
+=== AST ===
+Programa(sentencias=[Declaracion(nombre='x', valor=Numero(valor=1)),
+                     Declaracion(nombre='x', valor=Numero(valor=2))])
+=== SEMANTICA ===
+[Error Semantico] Línea 2: variable 'x' ya declarada.
+Tabla parcial al detenerse en el primer error:
+{'x': 'entero'}

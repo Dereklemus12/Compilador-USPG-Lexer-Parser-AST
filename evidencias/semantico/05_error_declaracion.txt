@@ -1,0 +1,10 @@
+Comando: python main.py pruebas/05_error_declaracion.txt
+Código de salida: 1
+
+=== TOKENS ===
+[Token(tipo='PR_ENTERO', valor='entero', linea=1, columna=1),
+ Token(tipo='OP_ASIG', valor='=', linea=1, columna=8),
+ Token(tipo='NUMERO', valor='10', linea=1, columna=10),
+ Token(tipo='PUNTO_COMA', valor=';', linea=1, columna=12),
+ Token(tipo='EOF', valor='', linea=2, columna=1)]
+Línea 1, columna 8: esperado ID; recibido OP_ASIG '='

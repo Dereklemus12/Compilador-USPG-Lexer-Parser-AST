@@ -1,0 +1,21 @@
+Comando: python main.py pruebas/11_error_tipo_incompatible.txt
+Código de salida: 1
+
+=== TOKENS ===
+[Token(tipo='PR_ENTERO', valor='entero', linea=1, columna=1),
+ Token(tipo='ID', valor='x', linea=1, columna=8),
+ Token(tipo='OP_ASIG', valor='=', linea=1, columna=10),
+ Token(tipo='NUMERO', valor='1', linea=1, columna=12),
+ Token(tipo='OP_REL', valor='<', linea=1, columna=14),
+ Token(tipo='NUMERO', valor='2', linea=1, columna=16),
+ Token(tipo='PUNTO_COMA', valor=';', linea=1, columna=17),
+ Token(tipo='EOF', valor='', linea=2, columna=1)]
+=== AST ===
+Programa(sentencias=[Declaracion(nombre='x',
+                                 valor=OpBinaria(izquierda=Numero(valor=1),
+                                                 operador='<',
+                                                 derecha=Numero(valor=2)))])
+=== SEMANTICA ===
+[Error Semantico] Línea 1: inicialización de 'x' exige 'entero', se recibió 'booleano'.
+Tabla parcial al detenerse en el primer error:
+{}

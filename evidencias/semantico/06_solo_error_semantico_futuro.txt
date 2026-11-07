@@ -1,0 +1,14 @@
+Comando: python main.py pruebas/06_solo_error_semantico_futuro.txt
+Código de salida: 1
+
+=== TOKENS ===
+[Token(tipo='PR_IMPRIMIR', valor='imprimir', linea=1, columna=1),
+ Token(tipo='ID', valor='variable_no_declarada', linea=1, columna=10),
+ Token(tipo='PUNTO_COMA', valor=';', linea=1, columna=31),
+ Token(tipo='EOF', valor='', linea=2, columna=1)]
+=== AST ===
+Programa(sentencias=[Imprimir(expresion=Identificador(nombre='variable_no_declarada'))])
+=== SEMANTICA ===
+[Error Semantico] Línea 1: variable 'variable_no_declarada' no declarada.
+Tabla parcial al detenerse en el primer error:
+{}

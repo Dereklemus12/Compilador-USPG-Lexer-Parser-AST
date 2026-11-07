@@ -1,0 +1,7 @@
+Programa: pruebas/07_token_personalizado.txt
+Ámbito global; no se calculan valores.
+Inicial: {}
+1. Declaracion: {'numero': 'entero'}
+2. Declaracion: {'numero': 'entero', 'divisor': 'entero'}
+3. Declaracion: {'numero': 'entero', 'divisor': 'entero', 'residuo': 'entero'}
+4. Si: {'numero': 'entero', 'divisor': 'entero', 'residuo': 'entero'}

@@ -1,0 +1,27 @@
+Comando: python main.py pruebas/16_error_modulo_booleano.txt
+Código de salida: 1
+
+=== TOKENS ===
+[Token(tipo='PR_ENTERO', valor='entero', linea=1, columna=1),
+ Token(tipo='ID', valor='residuo', linea=1, columna=8),
+ Token(tipo='OP_ASIG', valor='=', linea=1, columna=16),
+ Token(tipo='PAR_IZQ', valor='(', linea=1, columna=18),
+ Token(tipo='NUMERO', valor='1', linea=1, columna=19),
+ Token(tipo='OP_REL', valor='<', linea=1, columna=21),
+ Token(tipo='NUMERO', valor='2', linea=1, columna=23),
+ Token(tipo='PAR_DER', valor=')', linea=1, columna=24),
+ Token(tipo='OP_MODULO', valor='%', linea=1, columna=26),
+ Token(tipo='NUMERO', valor='3', linea=1, columna=28),
+ Token(tipo='PUNTO_COMA', valor=';', linea=1, columna=29),
+ Token(tipo='EOF', valor='', linea=2, columna=1)]
+=== AST ===
+Programa(sentencias=[Declaracion(nombre='residuo',
+                                 valor=OpBinaria(izquierda=OpBinaria(izquierda=Numero(valor=1),
+                                                                     operador='<',
+                                                                     derecha=Numero(valor=2)),
+                                                 operador='%',
+                                                 derecha=Numero(valor=3)))])
+=== SEMANTICA ===
+[Error Semantico] Operador '%' exige dos enteros, se recibieron 'booleano' y 'entero'.
+Tabla parcial al detenerse en el primer error:
+{}

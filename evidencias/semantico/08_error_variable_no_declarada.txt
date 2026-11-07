@@ -1,0 +1,15 @@
+Comando: python main.py pruebas/08_error_variable_no_declarada.txt
+Código de salida: 1
+
+=== TOKENS ===
+[Token(tipo='ID', valor='x', linea=1, columna=1),
+ Token(tipo='OP_ASIG', valor='=', linea=1, columna=3),
+ Token(tipo='NUMERO', valor='10', linea=1, columna=5),
+ Token(tipo='PUNTO_COMA', valor=';', linea=1, columna=7),
+ Token(tipo='EOF', valor='', linea=2, columna=1)]
+=== AST ===
+Programa(sentencias=[Asignacion(nombre='x', valor=Numero(valor=10))])
+=== SEMANTICA ===
+[Error Semantico] Línea 1: variable 'x' no declarada.
+Tabla parcial al detenerse en el primer error:
+{}

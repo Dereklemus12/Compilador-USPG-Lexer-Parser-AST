@@ -1,0 +1,48 @@
+Comando: python main.py pruebas/07_token_personalizado.txt
+Código de salida: 0
+
+=== TOKENS ===
+[Token(tipo='PR_ENTERO', valor='entero', linea=1, columna=1),
+ Token(tipo='ID', valor='numero', linea=1, columna=8),
+ Token(tipo='OP_ASIG', valor='=', linea=1, columna=15),
+ Token(tipo='NUMERO', valor='10', linea=1, columna=17),
+ Token(tipo='PUNTO_COMA', valor=';', linea=1, columna=19),
+ Token(tipo='PR_ENTERO', valor='entero', linea=2, columna=1),
+ Token(tipo='ID', valor='divisor', linea=2, columna=8),
+ Token(tipo='OP_ASIG', valor='=', linea=2, columna=16),
+ Token(tipo='NUMERO', valor='3', linea=2, columna=18),
+ Token(tipo='PUNTO_COMA', valor=';', linea=2, columna=19),
+ Token(tipo='PR_ENTERO', valor='entero', linea=3, columna=1),
+ Token(tipo='ID', valor='residuo', linea=3, columna=8),
+ Token(tipo='OP_ASIG', valor='=', linea=3, columna=16),
+ Token(tipo='ID', valor='numero', linea=3, columna=18),
+ Token(tipo='OP_MODULO', valor='%', linea=3, columna=25),
+ Token(tipo='ID', valor='divisor', linea=3, columna=27),
+ Token(tipo='PUNTO_COMA', valor=';', linea=3, columna=34),
+ Token(tipo='PR_SI', valor='si', linea=5, columna=1),
+ Token(tipo='PAR_IZQ', valor='(', linea=5, columna=4),
+ Token(tipo='ID', valor='residuo', linea=5, columna=5),
+ Token(tipo='OP_REL', valor='==', linea=5, columna=13),
+ Token(tipo='NUMERO', valor='1', linea=5, columna=16),
+ Token(tipo='PAR_DER', valor=')', linea=5, columna=17),
+ Token(tipo='LLAVE_IZQ', valor='{', linea=5, columna=19),
+ Token(tipo='PR_IMPRIMIR', valor='imprimir', linea=6, columna=5),
+ Token(tipo='ID', valor='residuo', linea=6, columna=14),
+ Token(tipo='PUNTO_COMA', valor=';', linea=6, columna=21),
+ Token(tipo='LLAVE_DER', valor='}', linea=7, columna=1),
+ Token(tipo='EOF', valor='', linea=7, columna=2)]
+=== AST ===
+Programa(sentencias=[Declaracion(nombre='numero', valor=Numero(valor=10)),
+                     Declaracion(nombre='divisor', valor=Numero(valor=3)),
+                     Declaracion(nombre='residuo',
+                                 valor=OpBinaria(izquierda=Identificador(nombre='numero'),
+                                                 operador='%',
+                                                 derecha=Identificador(nombre='divisor'))),
+                     Si(condicion=OpBinaria(izquierda=Identificador(nombre='residuo'),
+                                            operador='==',
+                                            derecha=Numero(valor=1)),
+                        cuerpo=[Imprimir(expresion=Identificador(nombre='residuo'))])])
+=== SEMANTICA ===
+Análisis semántico correcto. No se ejecutan instrucciones.
+=== TABLA DE SIMBOLOS (GLOBAL: nombre -> tipo) ===
+{'divisor': 'entero', 'numero': 'entero', 'residuo': 'entero'}

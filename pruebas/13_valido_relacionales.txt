@@ -1,0 +1,3 @@
+entero x = 3;
+si (x >= 1) { imprimir x; }
+mientras (x != 0) { x = x - 1; }

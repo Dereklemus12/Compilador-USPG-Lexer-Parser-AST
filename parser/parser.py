@@ -44,20 +44,22 @@ class Parser:
 
     def declaracion(self):
         self.coincidir('PR_ENTERO')
-        nombre = self.coincidir('ID').valor
+        identificador = self.coincidir('ID')
+        nombre = identificador.valor
         valor = None
         if self.actual.tipo == 'OP_ASIG':
             self.avanzar()
             valor = self.expresion()
         self.coincidir('PUNTO_COMA')
-        return Declaracion(nombre, valor)
+        return Declaracion(nombre, valor, linea=identificador.linea)
 
     def asignacion(self):
-        nombre = self.coincidir('ID').valor
+        identificador = self.coincidir('ID')
+        nombre = identificador.valor
         self.coincidir('OP_ASIG')
         valor = self.expresion()
         self.coincidir('PUNTO_COMA')
-        return Asignacion(nombre, valor)
+        return Asignacion(nombre, valor, linea=identificador.linea)
 
     def imprimir(self):
         self.coincidir('PR_IMPRIMIR')
@@ -130,7 +132,9 @@ class Parser:
     def primario(self):
         tipo = self.actual.tipo
         if tipo == 'NUMERO': return Numero(int(self.avanzar().valor))
-        if tipo == 'ID': return Identificador(self.avanzar().valor)
+        if tipo == 'ID':
+            token = self.avanzar()
+            return Identificador(token.valor, linea=token.linea)
         if tipo == 'PAR_IZQ':
             self.avanzar()
             expresion = self.expresion()

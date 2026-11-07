@@ -1,0 +1,58 @@
+Comando: python main.py pruebas/01_basico_valido.txt
+Código de salida: 0
+
+=== TOKENS ===
+[Token(tipo='PR_ENTERO', valor='entero', linea=1, columna=1),
+ Token(tipo='ID', valor='x', linea=1, columna=8),
+ Token(tipo='OP_ASIG', valor='=', linea=1, columna=10),
+ Token(tipo='NUMERO', valor='10', linea=1, columna=12),
+ Token(tipo='PUNTO_COMA', valor=';', linea=1, columna=14),
+ Token(tipo='PR_ENTERO', valor='entero', linea=2, columna=1),
+ Token(tipo='ID', valor='limite', linea=2, columna=8),
+ Token(tipo='OP_ASIG', valor='=', linea=2, columna=15),
+ Token(tipo='NUMERO', valor='20', linea=2, columna=17),
+ Token(tipo='PUNTO_COMA', valor=';', linea=2, columna=19),
+ Token(tipo='PR_MIENTRAS', valor='mientras', linea=3, columna=1),
+ Token(tipo='PAR_IZQ', valor='(', linea=3, columna=10),
+ Token(tipo='ID', valor='x', linea=3, columna=11),
+ Token(tipo='OP_REL', valor='<=', linea=3, columna=13),
+ Token(tipo='ID', valor='limite', linea=3, columna=16),
+ Token(tipo='PAR_DER', valor=')', linea=3, columna=22),
+ Token(tipo='LLAVE_IZQ', valor='{', linea=3, columna=24),
+ Token(tipo='PR_SI', valor='si', linea=4, columna=5),
+ Token(tipo='PAR_IZQ', valor='(', linea=4, columna=8),
+ Token(tipo='ID', valor='x', linea=4, columna=9),
+ Token(tipo='OP_REL', valor='!=', linea=4, columna=11),
+ Token(tipo='NUMERO', valor='15', linea=4, columna=14),
+ Token(tipo='PAR_DER', valor=')', linea=4, columna=16),
+ Token(tipo='LLAVE_IZQ', valor='{', linea=4, columna=18),
+ Token(tipo='PR_IMPRIMIR', valor='imprimir', linea=5, columna=9),
+ Token(tipo='ID', valor='x', linea=5, columna=18),
+ Token(tipo='PUNTO_COMA', valor=';', linea=5, columna=19),
+ Token(tipo='LLAVE_DER', valor='}', linea=6, columna=5),
+ Token(tipo='ID', valor='x', linea=7, columna=5),
+ Token(tipo='OP_ASIG', valor='=', linea=7, columna=7),
+ Token(tipo='ID', valor='x', linea=7, columna=9),
+ Token(tipo='OP_ARIT', valor='+', linea=7, columna=11),
+ Token(tipo='NUMERO', valor='2', linea=7, columna=13),
+ Token(tipo='PUNTO_COMA', valor=';', linea=7, columna=14),
+ Token(tipo='LLAVE_DER', valor='}', linea=8, columna=1),
+ Token(tipo='EOF', valor='', linea=9, columna=1)]
+=== AST ===
+Programa(sentencias=[Declaracion(nombre='x', valor=Numero(valor=10)),
+                     Declaracion(nombre='limite', valor=Numero(valor=20)),
+                     Mientras(condicion=OpBinaria(izquierda=Identificador(nombre='x'),
+                                                  operador='<=',
+                                                  derecha=Identificador(nombre='limite')),
+                              cuerpo=[Si(condicion=OpBinaria(izquierda=Identificador(nombre='x'),
+                                                             operador='!=',
+                                                             derecha=Numero(valor=15)),
+                                         cuerpo=[Imprimir(expresion=Identificador(nombre='x'))]),
+                                      Asignacion(nombre='x',
+                                                 valor=OpBinaria(izquierda=Identificador(nombre='x'),
+                                                                 operador='+',
+                                                                 derecha=Numero(valor=2)))])])
+=== SEMANTICA ===
+Análisis semántico correcto. No se ejecutan instrucciones.
+=== TABLA DE SIMBOLOS (GLOBAL: nombre -> tipo) ===
+{'limite': 'entero', 'x': 'entero'}

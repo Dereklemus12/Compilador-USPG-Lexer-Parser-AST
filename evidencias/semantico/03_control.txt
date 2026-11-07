@@ -1,0 +1,52 @@
+Comando: python main.py pruebas/03_control.txt
+Código de salida: 0
+
+=== TOKENS ===
+[Token(tipo='PR_ENTERO', valor='entero', linea=1, columna=1),
+ Token(tipo='ID', valor='x', linea=1, columna=8),
+ Token(tipo='OP_ASIG', valor='=', linea=1, columna=10),
+ Token(tipo='NUMERO', valor='0', linea=1, columna=12),
+ Token(tipo='PUNTO_COMA', valor=';', linea=1, columna=13),
+ Token(tipo='PR_MIENTRAS', valor='mientras', linea=2, columna=1),
+ Token(tipo='PAR_IZQ', valor='(', linea=2, columna=10),
+ Token(tipo='ID', valor='x', linea=2, columna=11),
+ Token(tipo='OP_REL', valor='<', linea=2, columna=13),
+ Token(tipo='NUMERO', valor='3', linea=2, columna=15),
+ Token(tipo='PAR_DER', valor=')', linea=2, columna=16),
+ Token(tipo='LLAVE_IZQ', valor='{', linea=2, columna=18),
+ Token(tipo='PR_SI', valor='si', linea=2, columna=20),
+ Token(tipo='PAR_IZQ', valor='(', linea=2, columna=23),
+ Token(tipo='ID', valor='x', linea=2, columna=24),
+ Token(tipo='OP_REL', valor='==', linea=2, columna=26),
+ Token(tipo='NUMERO', valor='1', linea=2, columna=29),
+ Token(tipo='PAR_DER', valor=')', linea=2, columna=30),
+ Token(tipo='LLAVE_IZQ', valor='{', linea=2, columna=32),
+ Token(tipo='PR_IMPRIMIR', valor='imprimir', linea=2, columna=34),
+ Token(tipo='ID', valor='x', linea=2, columna=43),
+ Token(tipo='PUNTO_COMA', valor=';', linea=2, columna=44),
+ Token(tipo='LLAVE_DER', valor='}', linea=2, columna=46),
+ Token(tipo='ID', valor='x', linea=2, columna=48),
+ Token(tipo='OP_ASIG', valor='=', linea=2, columna=50),
+ Token(tipo='ID', valor='x', linea=2, columna=52),
+ Token(tipo='OP_ARIT', valor='+', linea=2, columna=54),
+ Token(tipo='NUMERO', valor='1', linea=2, columna=56),
+ Token(tipo='PUNTO_COMA', valor=';', linea=2, columna=57),
+ Token(tipo='LLAVE_DER', valor='}', linea=2, columna=59),
+ Token(tipo='EOF', valor='', linea=3, columna=1)]
+=== AST ===
+Programa(sentencias=[Declaracion(nombre='x', valor=Numero(valor=0)),
+                     Mientras(condicion=OpBinaria(izquierda=Identificador(nombre='x'),
+                                                  operador='<',
+                                                  derecha=Numero(valor=3)),
+                              cuerpo=[Si(condicion=OpBinaria(izquierda=Identificador(nombre='x'),
+                                                             operador='==',
+                                                             derecha=Numero(valor=1)),
+                                         cuerpo=[Imprimir(expresion=Identificador(nombre='x'))]),
+                                      Asignacion(nombre='x',
+                                                 valor=OpBinaria(izquierda=Identificador(nombre='x'),
+                                                                 operador='+',
+                                                                 derecha=Numero(valor=1)))])])
+=== SEMANTICA ===
+Análisis semántico correcto. No se ejecutan instrucciones.
+=== TABLA DE SIMBOLOS (GLOBAL: nombre -> tipo) ===
+{'x': 'entero'}

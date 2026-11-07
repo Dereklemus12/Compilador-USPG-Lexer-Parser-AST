@@ -1,0 +1,49 @@
+Python 3.13.1 (tags/v3.13.1:0671451, Dec  3 2024, 19:06:28) [MSC v.1942 64 bit (AMD64)]
+Comando: python -m unittest discover -s pruebas -p "test_*.py" -v
+
+test_eof (test_integracion.Integracion.test_eof) ... ok
+test_error_lexico (test_integracion.Integracion.test_error_lexico) ... ok
+test_error_sintactico (test_integracion.Integracion.test_error_sintactico) ... ok
+test_operador_modulo (test_integracion.Integracion.test_operador_modulo) ... ok
+test_precedencia (test_integracion.Integracion.test_precedencia) ... ok
+test_token_anterior (test_integracion.Integracion.test_token_anterior) ... ok
+test_valido (test_integracion.Integracion.test_valido) ... ok
+test_alcance_global (test_semantico.Semantica.test_alcance_global) ... ok
+test_aritmeticos (test_semantico.Semantica.test_aritmeticos) ... ok
+test_aritmeticos_rechazan_booleanos_en_ambos_lados (test_semantico.Semantica.test_aritmeticos_rechazan_booleanos_en_ambos_lados) ... ok
+test_asignacion_incompatible (test_semantico.Semantica.test_asignacion_incompatible) ... ok
+test_asignacion_inexistente (test_semantico.Semantica.test_asignacion_inexistente) ... ok
+test_asignacion_valida (test_semantico.Semantica.test_asignacion_valida) ... ok
+test_autorreferencia (test_semantico.Semantica.test_autorreferencia) ... ok
+test_cli_fases_y_error (test_semantico.Semantica.test_cli_fases_y_error) ... ok
+test_comparacion_encadenada_sigue_siendo_error_sintactico (test_semantico.Semantica.test_comparacion_encadenada_sigue_siendo_error_sintactico) ... ok
+test_declaracion_sin_inicializador (test_semantico.Semantica.test_declaracion_sin_inicializador) ... ok
+test_declaracion_valida (test_semantico.Semantica.test_declaracion_valida) ... ok
+test_duplicada_con_linea (test_semantico.Semantica.test_duplicada_con_linea) ... ok
+test_identificador_devuelve_tipo (test_semantico.Semantica.test_identificador_devuelve_tipo) ... ok
+test_identificador_inexistente (test_semantico.Semantica.test_identificador_inexistente) ... ok
+test_imprimir_booleano_valido (test_semantico.Semantica.test_imprimir_booleano_valido) ... ok
+test_imprimir_identificador_inexistente (test_semantico.Semantica.test_imprimir_identificador_inexistente) ... ok
+test_inicializacion_incompatible (test_semantico.Semantica.test_inicializacion_incompatible) ... ok
+test_mientras_entero_invalido (test_semantico.Semantica.test_mientras_entero_invalido) ... ok
+test_mientras_valido (test_semantico.Semantica.test_mientras_valido) ... ok
+test_modulo_personal (test_semantico.Semantica.test_modulo_personal) ... ok
+test_negacion_y_precedencia (test_semantico.Semantica.test_negacion_y_precedencia) ... ok
+test_no_ejecuta_ciclo (test_semantico.Semantica.test_no_ejecuta_ciclo) ... ok
+test_no_evalua_division_ni_modulo (test_semantico.Semantica.test_no_evalua_division_ni_modulo) ... ok
+test_no_exige_inicializacion (test_semantico.Semantica.test_no_exige_inicializacion) ... ok
+test_no_registra_inicializador_invalido (test_semantico.Semantica.test_no_registra_inicializador_invalido) ... ok
+test_nodo_desconocido (test_semantico.Semantica.test_nodo_desconocido) ... ok
+test_numero (test_semantico.Semantica.test_numero) ... ok
+test_operador_desconocido (test_semantico.Semantica.test_operador_desconocido) ... ok
+test_relacion_rechaza_booleano (test_semantico.Semantica.test_relacion_rechaza_booleano) ... ok
+test_relacionales (test_semantico.Semantica.test_relacionales) ... ok
+test_si_entero_invalido (test_semantico.Semantica.test_si_entero_invalido) ... ok
+test_si_valido (test_semantico.Semantica.test_si_valido) ... ok
+test_tabla_vacia (test_semantico.Semantica.test_tabla_vacia) ... ok
+test_visita_bloques_sin_ejecutar (test_semantico.Semantica.test_visita_bloques_sin_ejecutar) ... ok
+
+----------------------------------------------------------------------
+Ran 41 tests in 0.059s
+
+OK

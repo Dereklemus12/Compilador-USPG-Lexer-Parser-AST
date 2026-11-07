@@ -1,0 +1,2 @@
+imprimir x;
+entero x = 2;

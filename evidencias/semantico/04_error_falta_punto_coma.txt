@@ -1,0 +1,13 @@
+Comando: python main.py pruebas/04_error_falta_punto_coma.txt
+Código de salida: 1
+
+=== TOKENS ===
+[Token(tipo='PR_ENTERO', valor='entero', linea=1, columna=1),
+ Token(tipo='ID', valor='x', linea=1, columna=8),
+ Token(tipo='OP_ASIG', valor='=', linea=1, columna=10),
+ Token(tipo='NUMERO', valor='10', linea=1, columna=12),
+ Token(tipo='PR_IMPRIMIR', valor='imprimir', linea=2, columna=1),
+ Token(tipo='ID', valor='x', linea=2, columna=10),
+ Token(tipo='PUNTO_COMA', valor=';', linea=2, columna=11),
+ Token(tipo='EOF', valor='', linea=3, columna=1)]
+Línea 2, columna 1: esperado PUNTO_COMA; recibido PR_IMPRIMIR 'imprimir'

@@ -1,0 +1,52 @@
+Comando: python main.py pruebas/13_valido_relacionales.txt
+Código de salida: 0
+
+=== TOKENS ===
+[Token(tipo='PR_ENTERO', valor='entero', linea=1, columna=1),
+ Token(tipo='ID', valor='x', linea=1, columna=8),
+ Token(tipo='OP_ASIG', valor='=', linea=1, columna=10),
+ Token(tipo='NUMERO', valor='3', linea=1, columna=12),
+ Token(tipo='PUNTO_COMA', valor=';', linea=1, columna=13),
+ Token(tipo='PR_SI', valor='si', linea=2, columna=1),
+ Token(tipo='PAR_IZQ', valor='(', linea=2, columna=4),
+ Token(tipo='ID', valor='x', linea=2, columna=5),
+ Token(tipo='OP_REL', valor='>=', linea=2, columna=7),
+ Token(tipo='NUMERO', valor='1', linea=2, columna=10),
+ Token(tipo='PAR_DER', valor=')', linea=2, columna=11),
+ Token(tipo='LLAVE_IZQ', valor='{', linea=2, columna=13),
+ Token(tipo='PR_IMPRIMIR', valor='imprimir', linea=2, columna=15),
+ Token(tipo='ID', valor='x', linea=2, columna=24),
+ Token(tipo='PUNTO_COMA', valor=';', linea=2, columna=25),
+ Token(tipo='LLAVE_DER', valor='}', linea=2, columna=27),
+ Token(tipo='PR_MIENTRAS', valor='mientras', linea=3, columna=1),
+ Token(tipo='PAR_IZQ', valor='(', linea=3, columna=10),
+ Token(tipo='ID', valor='x', linea=3, columna=11),
+ Token(tipo='OP_REL', valor='!=', linea=3, columna=13),
+ Token(tipo='NUMERO', valor='0', linea=3, columna=16),
+ Token(tipo='PAR_DER', valor=')', linea=3, columna=17),
+ Token(tipo='LLAVE_IZQ', valor='{', linea=3, columna=19),
+ Token(tipo='ID', valor='x', linea=3, columna=21),
+ Token(tipo='OP_ASIG', valor='=', linea=3, columna=23),
+ Token(tipo='ID', valor='x', linea=3, columna=25),
+ Token(tipo='OP_ARIT', valor='-', linea=3, columna=27),
+ Token(tipo='NUMERO', valor='1', linea=3, columna=29),
+ Token(tipo='PUNTO_COMA', valor=';', linea=3, columna=30),
+ Token(tipo='LLAVE_DER', valor='}', linea=3, columna=32),
+ Token(tipo='EOF', valor='', linea=4, columna=1)]
+=== AST ===
+Programa(sentencias=[Declaracion(nombre='x', valor=Numero(valor=3)),
+                     Si(condicion=OpBinaria(izquierda=Identificador(nombre='x'),
+                                            operador='>=',
+                                            derecha=Numero(valor=1)),
+                        cuerpo=[Imprimir(expresion=Identificador(nombre='x'))]),
+                     Mientras(condicion=OpBinaria(izquierda=Identificador(nombre='x'),
+                                                  operador='!=',
+                                                  derecha=Numero(valor=0)),
+                              cuerpo=[Asignacion(nombre='x',
+                                                 valor=OpBinaria(izquierda=Identificador(nombre='x'),
+                                                                 operador='-',
+                                                                 derecha=Numero(valor=1)))])])
+=== SEMANTICA ===
+Análisis semántico correcto. No se ejecutan instrucciones.
+=== TABLA DE SIMBOLOS (GLOBAL: nombre -> tipo) ===
+{'x': 'entero'}

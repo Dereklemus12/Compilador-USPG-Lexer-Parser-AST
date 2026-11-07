@@ -1,0 +1,26 @@
+Comando: python main.py pruebas/14_error_asignacion_tipo.txt
+Código de salida: 1
+
+=== TOKENS ===
+[Token(tipo='PR_ENTERO', valor='entero', linea=1, columna=1),
+ Token(tipo='ID', valor='x', linea=1, columna=8),
+ Token(tipo='OP_ASIG', valor='=', linea=1, columna=10),
+ Token(tipo='NUMERO', valor='5', linea=1, columna=12),
+ Token(tipo='PUNTO_COMA', valor=';', linea=1, columna=13),
+ Token(tipo='ID', valor='x', linea=2, columna=1),
+ Token(tipo='OP_ASIG', valor='=', linea=2, columna=3),
+ Token(tipo='NUMERO', valor='1', linea=2, columna=5),
+ Token(tipo='OP_REL', valor='<', linea=2, columna=7),
+ Token(tipo='NUMERO', valor='2', linea=2, columna=9),
+ Token(tipo='PUNTO_COMA', valor=';', linea=2, columna=10),
+ Token(tipo='EOF', valor='', linea=3, columna=1)]
+=== AST ===
+Programa(sentencias=[Declaracion(nombre='x', valor=Numero(valor=5)),
+                     Asignacion(nombre='x',
+                                valor=OpBinaria(izquierda=Numero(valor=1),
+                                                operador='<',
+                                                derecha=Numero(valor=2)))])
+=== SEMANTICA ===
+[Error Semantico] Línea 2: asignación a 'x' exige 'entero', se recibió 'booleano'.
+Tabla parcial al detenerse en el primer error:
+{'x': 'entero'}
