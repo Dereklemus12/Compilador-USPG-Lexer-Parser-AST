@@ -1,149 +1,140 @@
-# MiCompilador: Lexer + Parser + AST
+# Compilador USPG: del código fuente a la máquina virtual
 
-> Versión actual: [Entrega 3 — análisis semántico](#entrega-3-análisis-semántico-continuación).
-> El bloque inicial conserva la documentación histórica de las entregas anteriores.
+Proyecto académico en Python que integra análisis léxico, sintáctico, AST,
+semántica, generación de código de tres direcciones (TAC) y ejecución en una
+máquina virtual. La entrega conserva las fases y la extensión personal `%` del
+repositorio [Compilador-USPG-Lexer-Parser-AST](https://github.com/Dereklemus12/Compilador-USPG-Lexer-Parser-AST).
 
-Implementación autónoma de referencia, adaptada desde el lexer original del estudiante. **No es una edición del `parser/parser.py` del docente**, pues ese archivo no se pudo descargar para comprobar la compatibilidad de sus firmas y TODO.
+## Requisitos
+
+- Python 3.10 o posterior.
+- No se necesitan paquetes externos.
+
+Ejecuta los comandos desde la raíz del proyecto.
 
 ## Ejecución
 
-Desde la raíz, con Python 3.10+:
-
 ```powershell
-python main.py pruebas/01_basico_valido.txt
-python -m unittest discover -s pruebas -p "test_*.py" -v
+python main.py
+python main.py pruebas/17_modulo_personal.txt
+python main.py pruebas/03_control.txt
+python main.py pruebas/17_modulo_personal.txt --solo-tac
+python main.py pruebas/03_control.txt --limite-pasos 100
 ```
 
-## Arquitectura
+La ejecución completa imprime los tokens, el AST, la tabla de símbolos, las
+instrucciones TAC y las salidas de la VM. Para detener el proceso después de
+cualquier fase:
 
-- `lexer/lexer_original.py`: copia íntegra del lexer entregado.
-- `lexer/lexer.py`: adaptación del lexer del estudiante, manteniendo los tokens originales, añadiendo EOF y errores explícitos.
-- `parser/parser.py`: parser descendente recursivo (NO LR(0)).
-- `arbol_ast/nodos.py`: nodos AST mediante dataclasses.
-- `notebooks/`: documentación y ejercicio LR(0), independiente del parser principal.
+```powershell
+python main.py pruebas/17_modulo_personal.txt --solo-lexer
+python main.py pruebas/17_modulo_personal.txt --solo-parser
+python main.py pruebas/17_modulo_personal.txt --solo-semantica
+python main.py pruebas/17_modulo_personal.txt --solo-tac
+```
 
-Esta entrega **no incluye** semántica ni ejecución de código fuente.
+Un error de análisis, semántica o ejecución se imprime en consola y termina con
+código de salida `1`. `--limite-pasos` evita que un ciclo infinito bloquee la
+ejecución.
 
-## Evidencias de ejecución
+## Fases implementadas
 
-El proyecto incluye cuatro Jupyter Notebooks:
+1. **Lexer** (`lexer/lexer.py`): reconoce palabras reservadas, identificadores,
+   enteros, operadores, delimitadores, `%` y errores léxicos con ubicación.
+2. **Parser** (`parser/parser.py`): valida declaraciones, asignaciones,
+   impresión, expresiones, `si` y `mientras`; conserva precedencia y negación
+   unaria.
+3. **AST** (`arbol_ast/nodos.py`): representa programas, sentencias,
+   identificadores, literales y expresiones binarias.
+4. **Semántica** (`semantic/analizador.py`): administra la tabla global de
+   símbolos y verifica declaraciones, nombres, tipos y condiciones.
+5. **TAC** (`intermediate/tac.py`): genera operaciones, asignaciones, impresión,
+   etiquetas y saltos desde el AST ya validado.
+6. **Máquina virtual** (`vm/maquina_virtual.py`): interpreta TAC, realiza
+   aritmética y comparaciones, ejecuta saltos y devuelve las salidas.
 
-1. Construcción de la colección LR(0), ACTION/GOTO y análisis de abb.
-2. Reconocimiento léxico y generación de tokens.
-3. Integración del parser y construcción del AST.
-4. Pruebas de integración y detección de errores.
+Los cambios de esta entrega añaden TAC, VM, pruebas de ejecución y la integración
+del pipeline en `main.py`; el lexer, parser, AST y analizador semántico previos
+se conservan.
 
-Las salidas ejecutadas se almacenan en
-`evidencias/notebooks_ejecutados/`.
+## Extensión personal: operador módulo `%`
 
-## Extensión del analizador léxico
+La extensión viaja por todas las fases: el lexer produce `OP_MODULO`, el parser
+lo representa como `OpBinaria`, la semántica exige operandos enteros y devuelve
+`entero`, TAC emite `%` y la VM calcula el residuo. Un divisor cero se informa
+durante la ejecución.
 
-Se conserva el lexer original de la primera entrega.
+Entrada de [`pruebas/17_modulo_personal.txt`](pruebas/17_modulo_personal.txt):
 
-Adicionalmente, se incorpora el operador módulo `%`
-como token `OP_MODULO`.
+```text
+entero numero = 10;
+entero divisor = 3;
+entero residuo = numero % divisor;
+si (residuo == 1) {
+    imprimir residuo;
+}
+```
 
-El parser reconoce este operador con la misma
-precedencia que multiplicación y división.
+TAC generado:
 
-Ejemplo:
+```text
+('ASSIGN', '10', None, 'numero')
+('ASSIGN', '3', None, 'divisor')
+('%', 'numero', 'divisor', '@t1')
+('ASSIGN', '@t1', None, 'residuo')
+('==', 'residuo', '1', '@t2')
+('JMP_FALSE', '@t2', None, '@L1')
+('PRINT', 'residuo', None, None)
+('LABEL', None, None, '@L1')
+```
 
-    entero residuo = 10 % 3;
+Salida de la máquina virtual:
 
-La extensión se verifica mediante
-`test_operador_modulo` y el archivo
-`07_token_personalizado.txt`.
+```text
+>> SALIDA: 1
+Salidas VM: [1]
+```
+
+El caso de error personal está en [`pruebas/18_error_modulo_cero.txt`](pruebas/18_error_modulo_cero.txt).
+El caso semánticamente inválido `16_error_modulo_booleano.txt` comprueba que no
+se acepte módulo con un operando booleano.
 
 ## Pruebas
 
-Para ejecutar las pruebas automatizadas:
-
-    python -m unittest discover -s pruebas -p "test_*.py" -v
-
-La entrega no incluye análisis semántico
-ni ejecución de instrucciones.
-
----
-
-## Entrega 3: análisis semántico (continuación)
-
-Las secciones anteriores se conservan como historia de la entrega Lexer + Parser
-+ AST. La versión actual añade validación semántica; continúa sin ejecutar
-instrucciones ni generar TAC.
-
-**Código → Lexer → Tokens → Parser → AST → Analizador semántico → Validación.**
-
-Se integró la [plantilla del docente](https://github.com/ciarenasg-uspg/compilador-entrega-semantica/blob/5fc51c0a3de764118b43cf6fac5645f730dde6b5/semantic/analizador.py)
-conservando el lexer, parser, AST y extensiones personales existentes.
-Se mantienen los contratos anteriores y se añaden propiedades de compatibilidad
-a los nodos AST. `compilar(codigo)` sigue devolviendo tokens y AST;
-`validar(codigo)` añade el resultado semántico.
-
-### Los seis métodos de la entrega
-
-| Método | Validación |
-|---|---|
-| visitar_Declaracion | Duplicados, inicializador y registro del tipo |
-| visitar_Asignacion | Existencia y compatibilidad de tipos |
-| visitar_Identificador | Existencia; devuelve el tipo registrado |
-| visitar_OpBinaria | Operandos enteros; tipo aritmético o booleano; extensión `%` |
-| visitar_Si | Condición booleana y bloque |
-| visitar_Mientras | Condición booleana y bloque, sin ejecutar el ciclo |
-
-La plantilla consultada contiene cinco TODO literales: el visitante binario ya
-está resuelto, aunque el README del docente enumera seis pendientes. Se completan
-los cinco y se amplía el sexto método enumerado, sin inventar responsabilidades.
-
-### Tipos, símbolos y errores
-
-Solo hay declaraciones `entero`. Los operadores `+ - * / %` reciben enteros y
-devuelven entero. Las comparaciones `== != < > <= >=` reciben enteros y devuelven
-booleano. Las condiciones exigen booleano; las asignaciones e inicializadores
-deben coincidir con el tipo de la variable. `imprimir` valida su expresión.
-
-La tabla es un diccionario global `{nombre: tipo}`. La presencia de una clave
-indica declaración; no guarda valores ni estado de inicialización. Se conserva
-`entero x;`. No hay ámbitos locales: todos los bloques comparten la tabla.
-Los errores de nombres usan `NameError` con línea, y los de tipos `TypeError`.
-El análisis termina en el primer error; la consola muestra la tabla parcial.
-
-El operador personal `%` conserva token, precedencia y nodo. Un caso válido
-está en [07_token_personalizado.txt](pruebas/07_token_personalizado.txt);
-el [caso inválido](pruebas/16_error_modulo_booleano.txt) usa `(1 < 2) % 3`.
-La negación unaria y los paréntesis reutilizan las reglas existentes.
-
-### Ejecutar y reproducir evidencias
+Ejecuta la suite completa con:
 
 ```powershell
-python main.py pruebas/07_token_personalizado.txt
-python main.py pruebas/16_error_modulo_booleano.txt
-python main.py --solo-parser pruebas/16_error_modulo_booleano.txt
 python -m unittest discover -s pruebas -p "test_*.py" -v
-python pruebas/generar_evidencias_semantico.py
 ```
 
-Resultado verificado con Python 3.13.1: **41 pruebas (7 anteriores + 34 nuevas),
-0 fallos, 0 errores y 0 omisiones**. También se verificaron 16 programas por
-consola: cinco válidos y once rechazos esperados. Las salidas reales están en
-[evidencias/semantico/](evidencias/semantico/), incluida la
-[evolución de la tabla](evidencias/semantico/evolucion_tabla_simbolos.txt).
+Los casos de entrada existentes cubren lexer, parser, AST y semántica. La nueva
+suite `pruebas/test_tac_vm.py` comprueba operaciones y comparaciones, módulo,
+asignaciones, impresión, `si`, `mientras`, saltos, etiquetas, lectura de una
+variable sin inicializar, división y módulo entre cero, límite de pasos y los
+puntos de corte del pipeline de consola. La ejecución documentada reportó 58
+pruebas correctas, sin fallos ni errores.
 
-### Material de estudio y presentación
+| Caso | Resultado esperado | Archivo o prueba |
+|---|---|---|
+| Expresiones y cálculo | Válido; imprime el resultado | `pruebas/02_expresiones.txt` |
+| Control y ciclos | Válido; ejecuta condiciones y ciclos | `pruebas/03_control.txt` |
+| Punto y coma faltante | Error sintáctico | `pruebas/04_error_falta_punto_coma.txt` |
+| Variable inexistente | Error semántico | `pruebas/08_error_variable_no_declarada.txt` |
+| `%` con enteros | Válido; imprime `1` | `pruebas/17_modulo_personal.txt` |
+| `%` con operando booleano | Error semántico | `pruebas/16_error_modulo_booleano.txt` |
+| `%` con divisor cero | Error de ejecución | `pruebas/18_error_modulo_cero.txt` |
 
-- [Guía técnica, procedencia y reglas](docs/06_GUIA_ANALISIS_SEMANTICO.md).
-- [Guía de ejecución y reproducción](docs/07_GUIA_EJECUCION_ENTREGA_SEMANTICA.md).
-- [Guion de exposición](docs/08_GUION_EXPOSICION_SEMANTICA.md).
-- [Bitácora de procedimientos realizados](docs/09_BITACORA_PROCEDIMIENTOS_ENTREGA_SEMANTICA.md):
-  auditoría, decisiones, implementación, comandos, pruebas y publicación en GitHub.
-- [Notebook de análisis semántico](notebooks/05_Analisis_Semantico.ipynb), con
-  importaciones reales, ejemplos, tabla, errores y suite de pruebas.
+Las transcripciones reproducibles se guardan en `evidencias/final/` y la guía
+técnica está en [`docs/10_GUIA_EJECUCION_ENTREGA_FINAL.md`](docs/10_GUIA_EJECUCION_ENTREGA_FINAL.md).
 
-### Limitaciones
+## Formato TAC y límites del lenguaje
 
-No se evalúan expresiones, divisores cero, condiciones o ciclos. No hay TAC,
-intérprete, variables booleanas, cadenas, decimales ni análisis de inicialización.
-Las comparaciones encadenadas sin paréntesis siguen siendo error de sintaxis
-en este parser; se documenta la diferencia con la prueba remota del docente.
-Las expresiones booleanas entre paréntesis permiten probar incompatibilidades
-reales sin ampliar la gramática. No se afirma compatibilidad de constructores
-con todo AST externo: se conservan los constructores propios del proyecto.
+Cada instrucción es una tupla `(operación, argumento1, argumento2, destino)`.
+Los temporales `@tN` y etiquetas `@LN` son internos. `LABEL` marca destinos;
+`JMP` y `JMP_FALSE` controlan el flujo. Las comparaciones producen `1` o `0`, y
+la división entre enteros usa división entera de Python (`//`).
+
+Las declaraciones sin inicializador se conservan: la semántica valida el tipo,
+pero la VM informa si se intenta leer su valor antes de asignarlo. El alcance de
+variables es global; el parser permite una comparación relacional por
+expresión; el lenguaje no implementa `sino`, cadenas ni decimales.

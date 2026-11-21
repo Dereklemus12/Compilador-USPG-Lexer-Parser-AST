@@ -1,0 +1,2 @@
+entero residuo = 10 % 0;
+imprimir residuo;
