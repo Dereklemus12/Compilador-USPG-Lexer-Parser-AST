@@ -99,6 +99,15 @@ El caso de error personal está en [`pruebas/18_error_modulo_cero.txt`](pruebas/
 El caso semánticamente inválido `16_error_modulo_booleano.txt` comprueba que no
 se acepte módulo con un operando booleano.
 
+## Simulador interactivo para la demostración
+
+Abre [`pruebas/simulador_compilador.html`](pruebas/simulador_compilador.html) en
+un navegador. Funciona localmente y organiza el recorrido por Lexer, Parser,
+AST, semántica, TAC y máquina virtual. Incluye los 18 archivos de ejemplo, un
+caso léxico unitario, la cobertura de las 58 pruebas y preguntas sugeridas para
+la defensa. Las trazas del HTML son material didáctico precargado; para ejecutar
+el compilador real, usa los comandos de PowerShell que aparecen en cada caso.
+
 ## Pruebas
 
 Ejecuta la suite completa con:

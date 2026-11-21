@@ -1,0 +1,599 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Simulador didáctico, offline e interactivo para presentar el compilador USPG desde Lexer hasta la máquina virtual.">
+  <title>Compilador USPG · Simulador de defensa</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #193f31;
+      --ink-soft: #44675a;
+      --green: #145d3d;
+      --green-2: #20734d;
+      --mint: #e7f3eb;
+      --mint-2: #f3f8f4;
+      --line: #cfe2d4;
+      --white: #fff;
+      --red: #b62d40;
+      --red-bg: #fbebed;
+      --gold: #936000;
+      --gold-bg: #fff5dd;
+      --gray: #6f827a;
+      --shadow: 0 5px 18px rgba(18, 72, 46, .055);
+      --radius: 16px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: #f6faf7;
+      color: var(--ink);
+      font-family: "Segoe UI", Inter, system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      line-height: 1.5;
+    }
+    button, input, select { font: inherit; }
+    button { cursor: pointer; }
+    .topbar {
+      display: flex; align-items: center; justify-content: space-between; gap: 18px;
+      padding: 14px clamp(18px, 4vw, 54px); background: var(--white);
+      border-bottom: 1px solid var(--line); box-shadow: 0 2px 9px rgba(25, 63, 49, .035);
+    }
+    .brand { display: flex; align-items: center; gap: 12px; font-weight: 800; letter-spacing: .01em; }
+    .brand-mark {
+      display: grid; place-items: center; width: 38px; height: 38px; border-radius: 12px;
+      color: var(--white); background: var(--green); font-size: 14px; letter-spacing: -.04em;
+    }
+    .brand-name { display: block; font-size: 14px; color: var(--ink); }
+    .brand-caption { display: block; font-size: 10px; color: var(--ink-soft); font-weight: 600; letter-spacing: .08em; text-transform: uppercase; }
+    .topbar-meta { display: flex; align-items: center; gap: 10px; color: var(--ink-soft); font-size: 12px; }
+    .live-dot { width: 8px; height: 8px; border-radius: 50%; background: #258253; box-shadow: 0 0 0 4px #e6f4e9; }
+    .top-pill { padding: 7px 11px; border: 1px solid var(--line); border-radius: 999px; background: var(--mint-2); font-weight: 700; }
+    .wrap { width: min(1500px, 100%); margin: 0 auto; padding: 28px clamp(16px, 3.2vw, 44px) 48px; }
+    .eyebrow { color: var(--green-2); font-size: 11px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; }
+    .hero { display: flex; justify-content: space-between; align-items: end; gap: 28px; margin-bottom: 20px; }
+    h1 { margin: 5px 0 4px; color: var(--green); font-size: clamp(30px, 4vw, 46px); line-height: 1.08; letter-spacing: -.045em; }
+    .hero p { max-width: 750px; margin: 8px 0 0; color: var(--ink-soft); font-size: 14px; }
+    .hero-note { max-width: 255px; padding: 12px 14px; border: 1px solid var(--line); border-radius: 13px; background: var(--white); color: var(--ink-soft); font-size: 12px; box-shadow: var(--shadow); }
+    .hero-note strong { display: block; margin-bottom: 3px; color: var(--green); font-size: 12px; }
+    .metric-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin: 21px 0 20px; }
+    .metric {
+      min-height: 104px; overflow: hidden; border: 1px solid var(--line); border-radius: 15px;
+      background: var(--white); box-shadow: var(--shadow);
+    }
+    .metric-label { padding: 8px 12px; color: var(--green); background: var(--mint); font-size: 10px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+    .metric-body { display: flex; align-items: baseline; gap: 8px; padding: 7px 13px 2px; }
+    .metric-number { color: var(--green); font-size: 31px; font-weight: 850; line-height: 1.05; letter-spacing: -.04em; }
+    .metric-unit { color: var(--ink-soft); font-size: 12px; font-weight: 650; }
+    .metric-foot { padding: 3px 13px 9px; color: #6f867b; font-size: 10px; }
+    .app-layout { display: grid; grid-template-columns: 224px minmax(0, 1fr); gap: 16px; align-items: start; }
+    .sidebar { position: sticky; top: 12px; padding: 13px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--white); box-shadow: var(--shadow); }
+    .side-label { margin: 6px 8px 9px; color: #73897f; font-size: 10px; font-weight: 850; letter-spacing: .12em; text-transform: uppercase; }
+    .nav-button {
+      display: flex; width: 100%; align-items: center; gap: 10px; margin: 3px 0; padding: 10px 11px;
+      border: 1px solid transparent; border-radius: 10px; color: var(--ink-soft); background: transparent;
+      text-align: left; font-size: 12px; font-weight: 700; transition: .16s ease;
+    }
+    .nav-button:hover { background: var(--mint-2); color: var(--green); }
+    .nav-button.active { border-color: #cee2d4; background: var(--mint); color: var(--green); }
+    .nav-icon { display: grid; place-items: center; width: 23px; height: 23px; border-radius: 7px; color: var(--green); background: rgba(255,255,255,.8); font-size: 12px; }
+    .side-note { margin: 16px 2px 2px; padding: 12px; border-radius: 11px; color: var(--ink-soft); background: var(--mint-2); font-size: 11px; }
+    .side-note b { color: var(--green); }
+    .content { min-width: 0; }
+    .page { display: none; animation: rise .2s ease-out; }
+    .page.active { display: block; }
+    @keyframes rise { from { opacity: .65; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+    .section-heading { display: flex; justify-content: space-between; align-items: end; gap: 16px; margin: 2px 0 14px; }
+    .section-heading h2 { margin: 0; color: var(--green); font-size: 21px; letter-spacing: -.025em; }
+    .section-heading p { margin: 4px 0 0; color: var(--ink-soft); font-size: 12px; }
+    .card { border: 1px solid var(--line); border-radius: var(--radius); background: var(--white); box-shadow: var(--shadow); }
+    .card-header { padding: 10px 14px; border-bottom: 1px solid #dcebe0; border-radius: var(--radius) var(--radius) 0 0; background: var(--mint); color: var(--green); font-size: 11px; font-weight: 850; letter-spacing: .06em; text-transform: uppercase; }
+    .card-body { padding: 15px; }
+    .notice { display: flex; align-items: start; gap: 10px; margin-bottom: 14px; padding: 12px 14px; border: 1px solid #e8d7aa; border-radius: 12px; color: #705117; background: var(--gold-bg); font-size: 12px; }
+    .notice strong { color: #684900; }
+    .notice-icon { display: grid; flex: 0 0 22px; place-items: center; height: 22px; border-radius: 50%; color: #805b10; background: #f2dfad; font-weight: 900; }
+    .pipeline { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 8px; }
+    .phase-chip { position: relative; min-height: 83px; padding: 10px; border: 1px solid var(--line); border-radius: 12px; background: #fbfdfb; text-align: left; transition: .16s ease; }
+    .phase-chip:hover { transform: translateY(-2px); border-color: #8fbea1; box-shadow: var(--shadow); }
+    .phase-chip b { display: block; color: var(--green); font-size: 11px; }
+    .phase-chip span { display: block; margin-top: 4px; color: var(--ink-soft); font-size: 10px; line-height: 1.35; }
+    .phase-index { display: inline-grid; place-items: center; width: 20px; height: 20px; margin-bottom: 6px; border-radius: 7px; color: #fff; background: var(--green-2); font-size: 10px; font-weight: 800; }
+    .overview-grid { display: grid; grid-template-columns: 1.15fr .85fr; gap: 13px; margin-top: 14px; }
+    .start-card { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 16px; }
+    .start-card h3 { margin: 0; color: var(--green); font-size: 16px; }
+    .start-card p { margin: 6px 0 0; color: var(--ink-soft); font-size: 12px; }
+    .button-primary, .button-secondary, .button-quiet {
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 10px 14px;
+      border: 1px solid var(--green); border-radius: 10px; color: #fff; background: var(--green);
+      font-size: 12px; font-weight: 800; transition: .15s ease; white-space: nowrap;
+    }
+    .button-primary:hover { background: #0f4c31; transform: translateY(-1px); }
+    .button-secondary { border-color: var(--line); color: var(--green); background: var(--mint-2); }
+    .button-secondary:hover, .button-quiet:hover { background: var(--mint); }
+    .button-quiet { border-color: transparent; color: var(--green); background: transparent; }
+    .mini-list { display: grid; gap: 8px; }
+    .mini-row { display: flex; align-items: start; gap: 9px; color: var(--ink-soft); font-size: 11px; }
+    .check { display: grid; flex: 0 0 19px; place-items: center; height: 19px; border-radius: 6px; color: var(--green); background: var(--mint); font-size: 11px; font-weight: 900; }
+    .glossary-inline { margin-top: 13px; padding: 12px 14px; border-left: 3px solid var(--green-2); border-radius: 0 10px 10px 0; background: var(--mint-2); color: var(--ink-soft); font-size: 11px; }
+    .glossary-inline b { color: var(--green); }
+    .demo-toolbar { display: grid; grid-template-columns: minmax(230px, 1fr) auto auto; gap: 9px; align-items: end; margin: 12px 0; }
+    label.field-label { display: block; margin-bottom: 5px; color: #667f73; font-size: 10px; font-weight: 850; letter-spacing: .08em; text-transform: uppercase; }
+    select, input[type="search"] { width: 100%; min-height: 39px; padding: 8px 11px; border: 1px solid var(--line); border-radius: 9px; color: var(--ink); background: #fff; outline: none; font-size: 12px; }
+    select:focus, input:focus { border-color: #5d9a73; box-shadow: 0 0 0 3px rgba(62,139,89,.12); }
+    .demo-grid { display: grid; grid-template-columns: minmax(0, 1fr) 280px; gap: 12px; }
+    .source-frame { overflow: hidden; border: 1px solid #d4e3d9; border-radius: 13px; background: #f9fcfa; }
+    .source-top { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 9px 12px; border-bottom: 1px solid #dce9df; color: var(--ink-soft); background: #eef6f0; font-size: 10px; }
+    .source-top b { color: var(--green); }
+    pre { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+    .source-code { min-height: 150px; max-height: 300px; overflow: auto; padding: 13px 15px; color: #29463a; background: #fbfdfb; font: 12px/1.65 "Cascadia Code", Consolas, monospace; }
+    .case-summary { display: flex; flex-direction: column; gap: 10px; padding: 13px; }
+    .case-title { margin: 0; color: var(--green); font-size: 16px; line-height: 1.25; }
+    .case-description { margin: 0; color: var(--ink-soft); font-size: 11px; }
+    .badge-row { display: flex; flex-wrap: wrap; gap: 6px; }
+    .badge { display: inline-flex; align-items: center; gap: 5px; padding: 4px 8px; border: 1px solid var(--line); border-radius: 999px; color: var(--green); background: var(--mint-2); font-size: 9px; font-weight: 800; }
+    .badge.badge-error { border-color: #efc5cc; color: var(--red); background: var(--red-bg); }
+    .command-box { overflow: hidden; border: 1px solid #dce9df; border-radius: 10px; background: #f8fbf8; }
+    .command-label { padding: 6px 9px; border-bottom: 1px solid #e0ece3; color: #6e8379; font-size: 9px; font-weight: 800; text-transform: uppercase; }
+    .command-code { padding: 9px; color: #28513e; font: 10px/1.5 "Cascadia Code", Consolas, monospace; word-break: break-word; }
+    .small-button { border: 1px solid var(--line); border-radius: 8px; padding: 6px 8px; color: var(--green); background: #fff; font-size: 10px; font-weight: 800; }
+    .small-button:hover { background: var(--mint); }
+    .stepper { display: flex; gap: 5px; overflow-x: auto; margin: 13px 0 9px; padding: 2px 0 7px; }
+    .step-pill { flex: 0 0 auto; padding: 6px 9px; border: 1px solid var(--line); border-radius: 999px; color: #6a8175; background: #fff; font-size: 9px; font-weight: 800; }
+    .step-pill.active { border-color: var(--green-2); color: #fff; background: var(--green-2); }
+    .trace-heading { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin: 15px 0 9px; }
+    .trace-heading h3 { margin: 0; color: var(--green); font-size: 15px; }
+    .trace-heading span { color: #6e8379; font-size: 10px; }
+    .trace-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px; }
+    .phase-card { opacity: .35; transform: translateY(4px); transition: .2s ease; overflow: hidden; border: 1px solid var(--line); border-radius: 12px; background: #fff; }
+    .phase-card.revealed { opacity: 1; transform: none; }
+    .phase-card.current { border-color: #6eae84; box-shadow: 0 0 0 3px rgba(83,155,105,.10); }
+    .phase-card.state-error { border-color: #edc1c8; }
+    .phase-head { display: flex; justify-content: space-between; align-items: center; gap: 9px; padding: 8px 10px; background: var(--mint); color: var(--green); }
+    .state-error .phase-head { color: var(--red); background: var(--red-bg); }
+    .state-skip .phase-head { color: #6f8179; background: #f0f3f1; }
+    .phase-head b { font-size: 10px; }
+    .state-label { font-size: 9px; font-weight: 850; text-transform: uppercase; }
+    .phase-body { padding: 10px; }
+    .phase-body p { margin: 0 0 8px; color: var(--ink-soft); font-size: 10px; }
+    .phase-output { max-height: 130px; overflow: auto; padding: 8px; border-radius: 8px; color: #365548; background: #f6faf7; font: 10px/1.5 "Cascadia Code", Consolas, monospace; }
+    .state-error .phase-output { color: #8d2534; background: #fff5f6; }
+    .result-strip { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 9px; margin-top: 11px; padding: 11px 13px; border: 1px solid var(--line); border-radius: 11px; background: var(--mint-2); }
+    .result-strip strong { color: var(--green); font-size: 12px; }
+    .result-strip span { color: var(--ink-soft); font-size: 11px; }
+    .case-browser { display: grid; grid-template-columns: 260px minmax(0, 1fr); gap: 12px; }
+    .case-list { max-height: 625px; overflow-y: auto; padding: 7px; }
+    .case-row { display: block; width: 100%; margin: 3px 0; padding: 9px 10px; border: 1px solid transparent; border-radius: 9px; color: var(--ink); background: #fff; text-align: left; }
+    .case-row:hover { border-color: var(--line); background: var(--mint-2); }
+    .case-row.selected { border-color: #afd0ba; background: var(--mint); }
+    .case-row strong { display: block; font-size: 10px; color: var(--green); }
+    .case-row span { display: block; margin-top: 2px; color: #74877e; font-size: 9px; }
+    .case-table { width: 100%; border-collapse: collapse; font-size: 10px; }
+    .case-table th { padding: 8px; color: var(--green); background: var(--mint); text-align: left; font-size: 9px; letter-spacing: .06em; text-transform: uppercase; }
+    .case-table td { padding: 8px; border-bottom: 1px solid #e7efe9; color: var(--ink-soft); vertical-align: top; }
+    .case-table tr:hover td { background: #fbfdfb; }
+    .case-table button { border: 0; padding: 0; color: var(--green); background: transparent; font-size: 10px; font-weight: 800; text-align: left; }
+    .suite-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-top: 14px; }
+    .suite-card { overflow: hidden; border: 1px solid var(--line); border-radius: 12px; background: #fff; }
+    .suite-card summary { padding: 11px; color: var(--green); background: var(--mint); cursor: pointer; font-size: 11px; font-weight: 850; }
+    .suite-card summary span { float: right; padding: 2px 7px; border-radius: 999px; color: var(--green); background: white; font-size: 9px; }
+    .suite-card ul { display: grid; gap: 5px; margin: 0; padding: 12px 12px 14px 27px; color: var(--ink-soft); font: 9px/1.35 "Cascadia Code", Consolas, monospace; }
+    .qna-list { display: grid; gap: 8px; }
+    .qna { overflow: hidden; border: 1px solid var(--line); border-radius: 12px; background: #fff; }
+    .qna summary { padding: 12px 14px; color: var(--green); background: var(--mint-2); cursor: pointer; font-size: 12px; font-weight: 800; }
+    .qna p { margin: 0; padding: 12px 14px 14px; border-top: 1px solid #e5eee7; color: var(--ink-soft); font-size: 11px; }
+    .defense-script { display: grid; gap: 8px; }
+    .script-row { display: grid; grid-template-columns: 25px 1fr; gap: 9px; align-items: start; }
+    .script-num { display: grid; place-items: center; width: 24px; height: 24px; border-radius: 8px; color: white; background: var(--green-2); font-size: 10px; font-weight: 900; }
+    .script-row p { margin: 2px 0 0; color: var(--ink-soft); font-size: 11px; }
+    .script-row b { color: var(--green); }
+    .glossary-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-top: 12px; }
+    .glossary-item { padding: 10px; border: 1px solid var(--line); border-radius: 10px; background: #fbfdfb; }
+    .glossary-item b { display: block; margin-bottom: 3px; color: var(--green); font-size: 10px; }
+    .glossary-item span { color: var(--ink-soft); font-size: 10px; }
+    .empty-state { padding: 22px; color: var(--ink-soft); text-align: center; font-size: 11px; }
+    .footer { display: flex; justify-content: space-between; gap: 12px; margin-top: 22px; padding: 14px 2px 0; border-top: 1px solid var(--line); color: #73877e; font-size: 10px; }
+    .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+    @media (max-width: 980px) {
+      .app-layout { grid-template-columns: 1fr; }
+      .sidebar { position: static; display: flex; gap: 5px; overflow-x: auto; padding: 8px; }
+      .side-label, .side-note { display: none; }
+      .nav-button { width: auto; flex: 0 0 auto; }
+      .demo-grid { grid-template-columns: 1fr; }
+      .case-browser { grid-template-columns: 220px 1fr; }
+    }
+    @media (max-width: 680px) {
+      .topbar-meta .top-pill { display: none; }
+      .hero { display: block; }
+      .hero-note { max-width: none; margin-top: 14px; }
+      .metric-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .pipeline { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .overview-grid, .trace-grid, .case-browser, .suite-grid, .glossary-grid { grid-template-columns: 1fr; }
+      .demo-toolbar { grid-template-columns: 1fr 1fr; }
+      .demo-toolbar > div:first-child { grid-column: 1 / -1; }
+      .case-browser .case-list { max-height: 250px; }
+      .case-table { min-width: 590px; }
+      .table-scroll { overflow-x: auto; }
+      .start-card { align-items: start; flex-direction: column; }
+      .footer { flex-direction: column; }
+    }
+    @media print {
+      body { background: #fff; }
+      .topbar, .sidebar, .demo-toolbar button, .button-primary, .button-secondary, .small-button { display: none !important; }
+      .wrap { width: 100%; padding: 0; }
+      .app-layout { display: block; }
+      .page { display: none !important; }
+      .page.active { display: block !important; }
+      .card, .metric { box-shadow: none; break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-mark">USPG</span>
+      <span><span class="brand-name">Compilador · laboratorio</span><span class="brand-caption">Lexer · Parser · AST · Semántica · TAC · VM</span></span>
+    </div>
+    <div class="topbar-meta"><span class="live-dot"></span><span>Presentación guiada</span><span class="top-pill">Funciona sin conexión</span></div>
+  </header>
+
+  <main class="wrap">
+    <section class="hero">
+      <div>
+        <div class="eyebrow">Proyecto de compiladores · USPG</div>
+        <h1>Del código fuente a la ejecución</h1>
+        <p>Recorre las fases del compilador con los ejemplos reales del proyecto. Elige una prueba, ejecuta su traza guiada y explica qué ocurre en cada etapa.</p>
+      </div>
+      <div class="hero-note"><strong>Guía para la defensa</strong>Usa el menú para navegar. En cada demo encontrarás el código, las fases, la salida y una explicación lista para presentar.</div>
+    </section>
+
+    <section class="metric-grid" aria-label="Resumen del proyecto">
+      <article class="metric"><div class="metric-label">Fases conectadas</div><div class="metric-body"><span class="metric-number">6</span><span class="metric-unit">etapas</span></div><div class="metric-foot">Desde tokens hasta ejecución</div></article>
+      <article class="metric"><div class="metric-label">Archivos de ejemplo</div><div class="metric-body"><span class="metric-number">18</span><span class="metric-unit">casos</span></div><div class="metric-foot">Válidos y con errores intencionales</div></article>
+      <article class="metric"><div class="metric-label">Suite automatizada</div><div class="metric-body"><span class="metric-number">58</span><span class="metric-unit">pruebas</span></div><div class="metric-foot">Lexer, semántica, TAC, VM y CLI</div></article>
+      <article class="metric"><div class="metric-label">Extensión personal</div><div class="metric-body"><span class="metric-number">%</span><span class="metric-unit">módulo</span></div><div class="metric-foot">Llega desde el Lexer hasta la VM</div></article>
+    </section>
+
+    <div class="app-layout">
+      <aside class="sidebar" aria-label="Menú del simulador">
+        <div class="side-label">Presentación</div>
+        <button class="nav-button active" data-page="overview"><span class="nav-icon">⌂</span>Resumen</button>
+        <button class="nav-button" data-page="demo"><span class="nav-icon">▶</span>Demo guiada</button>
+        <button class="nav-button" data-page="tests"><span class="nav-icon">▤</span>Casos y pruebas</button>
+        <button class="nav-button" data-page="defense"><span class="nav-icon">?</span>Defensa técnica</button>
+        <div class="side-note"><b>Nota didáctica</b><br>El HTML presenta trazas precargadas. Para ejecutar el compilador real usa los comandos indicados en cada caso.</div>
+      </aside>
+
+      <div class="content">
+        <section class="page active" id="page-overview">
+          <div class="section-heading"><div><h2>Mapa del compilador</h2><p>Orden recomendado para explicar el recorrido del programa.</p></div><span class="badge">Entrada → salida</span></div>
+          <div class="card"><div class="card-header">Flujo de ejecución</div><div class="card-body"><div class="pipeline" id="overviewPipeline"></div><div class="glossary-inline"><b>Idea central:</b> cada fase recibe el resultado de la anterior. Si una fase encuentra un error, las siguientes no se ejecutan.</div></div></div>
+          <div class="overview-grid">
+            <article class="card"><div class="card-header">Empieza con la extensión personal</div><div class="card-body start-card"><div><h3>El operador módulo %</h3><p>Es el ejemplo más completo: crea tokens, AST, valida tipos, genera TAC y termina en una salida visible.</p></div><button class="button-primary" data-open-demo="17">Iniciar demo <span aria-hidden="true">→</span></button></div></article>
+            <article class="card"><div class="card-header">Qué cubre la entrega</div><div class="card-body mini-list"><div class="mini-row"><span class="check">✓</span><span>Lexer, Parser, AST y análisis semántico conservados.</span></div><div class="mini-row"><span class="check">✓</span><span>Generación de TAC para expresiones, asignaciones, impresión y control.</span></div><div class="mini-row"><span class="check">✓</span><span>VM para operaciones, comparaciones, saltos y errores de ejecución.</span></div><div class="mini-row"><span class="check">✓</span><span>18 archivos de ejemplo y 58 pruebas automatizadas.</span></div></div></article>
+          </div>
+          <div class="notice" style="margin-top:13px"><span class="notice-icon">i</span><span><strong>Sobre este simulador:</strong> las explicaciones y trazas se prepararon a partir de los ejemplos del repositorio. Esta página no lanza Python dentro del navegador; cada demo muestra el comando para ejecutar el caso real en la terminal.</span></div>
+        </section>
+
+        <section class="page" id="page-demo">
+          <div class="section-heading"><div><h2>Demo guiada por fases</h2><p>Selecciona un caso y pulsa “Simular traza” para presentar cada etapa en orden.</p></div><span class="badge">Trazas del proyecto</span></div>
+          <div class="demo-toolbar">
+            <div><label class="field-label" for="caseSelect">Caso de prueba</label><select id="caseSelect"></select></div>
+            <button class="button-primary" id="runDemo">▶ Simular traza</button>
+            <button class="button-secondary" id="resetDemo">Reiniciar</button>
+          </div>
+          <div class="demo-grid">
+            <article class="card"><div class="card-header">Código fuente seleccionado</div><div class="card-body" style="padding:0"><div class="source-frame"><div class="source-top"><b id="sourceFilename"></b><span id="sourceKind"></span></div><pre class="source-code" id="sourceCode"></pre></div></div></article>
+            <article class="card"><div class="card-header">Ficha del caso</div><div class="case-summary"><h3 class="case-title" id="caseTitle"></h3><div class="badge-row" id="caseBadges"></div><p class="case-description" id="caseDescription"></p><div class="command-box"><div class="command-label">Para ejecutar este caso en PowerShell</div><div class="command-code" id="caseCommand"></div></div><button class="small-button" id="copyCommand">Copiar comando</button></div></article>
+          </div>
+          <div class="stepper" id="stepper" aria-label="Fases"></div>
+          <div class="trace-heading"><h3>Recorrido de la ejecución</h3><span id="traceStatus">Pulsa “Simular traza” para comenzar.</span></div>
+          <div class="trace-grid" id="traceGrid" aria-live="polite"></div>
+          <div class="result-strip" id="resultStrip"><strong>Resultado esperado</strong><span id="caseResult">Selecciona un caso para ver su resultado.</span></div>
+        </section>
+
+        <section class="page" id="page-tests">
+          <div class="section-heading"><div><h2>Casos y pruebas</h2><p>Los 18 archivos .txt del repositorio, más un caso léxico cubierto por la suite.</p></div><span class="badge" id="caseCountBadge"></span></div>
+          <div class="case-browser">
+            <article class="card"><div class="card-header">Buscar o filtrar</div><div class="card-body"><label class="field-label" for="caseSearch">Buscar caso</label><input id="caseSearch" type="search" placeholder="Nombre, error, fase…"><div class="side-label" style="margin:14px 0 7px">Tipo de prueba</div><div class="badge-row" id="filterButtons"></div><div class="case-list" id="caseList" style="margin:9px -5px 0"></div></div></article>
+            <article class="card"><div class="card-header">Matriz de demostración</div><div class="card-body table-scroll"><table class="case-table"><thead><tr><th>Archivo / prueba</th><th>Clasificación</th><th>Fase evaluada</th><th>Resultado</th><th></th></tr></thead><tbody id="caseTableBody"></tbody></table></div></article>
+          </div>
+          <div class="section-heading" style="margin-top:20px"><div><h2>Cobertura automatizada</h2><p>Abre cada grupo para ver los nombres exactos de los 58 tests del proyecto.</p></div><span class="badge">7 + 34 + 17 = 58</span></div>
+          <div class="suite-grid" id="suiteGrid"></div>
+        </section>
+
+        <section class="page" id="page-defense">
+          <div class="section-heading"><div><h2>Guion y preguntas para la defensa</h2><p>Respuestas breves para explicar qué hace el compilador y por qué.</p></div><span class="badge">Apoyo para exposición</span></div>
+          <article class="card"><div class="card-header">Guion de presentación · 5 minutos</div><div class="card-body defense-script">
+            <div class="script-row"><span class="script-num">1</span><p><b>Presenta el objetivo.</b> “Este proyecto procesa un programa escrito en un lenguaje sencillo: reconoce sus tokens, valida su estructura y tipos, genera TAC y lo ejecuta en una máquina virtual.”</p></div>
+            <div class="script-row"><span class="script-num">2</span><p><b>Ejecuta el caso personal.</b> En la terminal: <code>python main.py pruebas/17_modulo_personal.txt</code>. Señala el token `OP_MODULO`, el nodo `OpBinaria`, la tabla semántica, la instrucción `%` y la salida `1`.</p></div>
+            <div class="script-row"><span class="script-num">3</span><p><b>Explica el control de flujo.</b> Abre el caso `03_control.txt`; el TAC pone una etiqueta al inicio del ciclo, recalcula la condición y usa saltos para decidir si continúa.</p></div>
+            <div class="script-row"><span class="script-num">4</span><p><b>Demuestra errores.</b> Usa `04_error_falta_punto_coma.txt`, `16_error_modulo_booleano.txt` y `18_error_modulo_cero.txt` para enseñar detección en Parser, semántica y VM.</p></div>
+            <div class="script-row"><span class="script-num">5</span><p><b>Concluye con pruebas.</b> Ejecuta <code>python -m unittest discover -s pruebas -p "test_*.py" -v</code>; el resultado documentado es 58 tests correctos.</p></div>
+          </div></article>
+          <div class="section-heading" style="margin-top:18px"><div><h2>Preguntas técnicas frecuentes</h2><p>Abre una pregunta para consultar una respuesta sugerida.</p></div></div>
+          <div class="qna-list" id="qnaList"></div>
+          <div class="section-heading" style="margin-top:18px"><div><h2>Glosario rápido</h2><p>Términos que aparecen en la consola y en el código.</p></div></div>
+          <div class="glossary-grid" id="glossaryGrid"></div>
+        </section>
+      </div>
+    </div>
+    <footer class="footer"><span>Simulador de defensa · Compilador USPG</span><span>Diseño local, sin dependencias externas · útil para practicar antes de la terminal</span></footer>
+  </main>
+
+  <script>
+    const phases = [
+      { id: "lexer", label: "Lexer", short: "Divide el texto en tokens.", explain: "El Lexer lee los caracteres del programa y los clasifica: palabras reservadas, identificadores, números, operadores y delimitadores." },
+      { id: "parser", label: "Parser", short: "Comprueba la gramática.", explain: "El Parser recibe los tokens y verifica que el orden de declaraciones, expresiones y bloques cumpla la gramática." },
+      { id: "ast", label: "AST", short: "Construye la estructura.", explain: "El AST organiza el programa como nodos conectados. Cada sentencia y expresión queda representada para las fases siguientes." },
+      { id: "semantic", label: "Semántica", short: "Revisa nombres y tipos.", explain: "La semántica mantiene la tabla de símbolos y valida que las variables existan y que operadores y condiciones usen tipos compatibles." },
+      { id: "tac", label: "TAC", short: "Emite operaciones de 3 direcciones.", explain: "El generador convierte el AST validado en instrucciones simples: operaciones, asignaciones, impresión, etiquetas y saltos." },
+      { id: "vm", label: "Máquina virtual", short: "Ejecuta el TAC.", explain: "La VM recorre las instrucciones, guarda valores en memoria, sigue saltos y reúne lo que el programa imprime." }
+    ];
+
+    const examples = [
+      { id:"01", file:"01_basico_valido.txt", title:"Ciclo con condición y excepción", category:"válido", errorStage:null, description:"Prueba un mientras con comparación <=, un si con != y una asignación en cada vuelta.", source:`entero x = 10;\nentero limite = 20;\nmientras (x <= limite) {\n    si (x != 15) {\n        imprimir x;\n    }\n    x = x + 2;\n}`, tokens:"PR_ENTERO · ID · NUMERO · PR_MIENTRAS · OP_REL(<=) · PR_SI · OP_REL(!=) · PR_IMPRIMIR · OP_ARIT(+) · EOF", parser:"La secuencia de tokens forma dos declaraciones y un ciclo mientras con un si anidado.", ast:"Programa → Declaración(x), Declaración(limite), Mientras(x <= limite) → Si(x != 15) → Imprimir(x), Asignación(x, x + 2).", semantic:"Correcto. `x` y `limite` están declaradas como enteros; las dos condiciones producen booleano.", tac:["LABEL @L1","<= x, limite → @t1","JMP_FALSE @t1 → @L2","!= x, 15 → @t2","JMP_FALSE @t2 → @L3","PRINT x","LABEL @L3","+ x, 2 → @t3","ASSIGN @t3 → x","JMP → @L1","LABEL @L2"], vm:"Salidas VM: [10, 12, 14, 16, 18, 20]", result:"Válido · imprime seis valores; la condición del ciclo detiene la ejecución al superar 20.", runSummary:"La VM recorre el ciclo, recalcula x <= limite y omite imprimir 15 porque x avanza de dos en dos." },
+      { id:"02", file:"02_expresiones.txt", title:"Precedencia y división", category:"válido", errorStage:null, description:"Comprueba que la multiplicación ocurre antes de la suma y que la impresión evalúa una expresión.", source:`entero x = 2 + 3 * 4;\nimprimir (x + 2) / 2;`, tokens:"PR_ENTERO · ID · NUMERO · OP_ARIT(+) · OP_ARIT(*) · PR_IMPRIMIR · PAR_IZQ · OP_ARIT(/) · EOF", parser:"El parser construye las expresiones respetando precedencia: 3 * 4 antes de sumarlo a 2.", ast:"Declaración(x, 2 + (3 * 4)); Imprimir((x + 2) / 2).", semantic:"Correcto. Todos los operandos de aritmética son enteros.", tac:["* 3, 4 → @t1","+ 2, @t1 → @t2","ASSIGN @t2 → x","+ x, 2 → @t3","/ @t3, 2 → @t4","PRINT @t4"], vm:"Salidas VM: [8]", result:"Válido · la expresión da 8.", runSummary:"Primero calcula 3 × 4 = 12; luego x = 14 y la impresión evalúa (14 + 2) / 2 = 8." },
+      { id:"03", file:"03_control.txt", title:"Si dentro de mientras", category:"válido", errorStage:null, description:"Muestra el ciclo y el salto condicional con una impresión que ocurre solo cuando x vale 1.", source:`entero x = 0;\nmientras (x < 3) { si (x == 1) { imprimir x; } x = x + 1; }`, tokens:"PR_ENTERO · ID · NUMERO · PR_MIENTRAS · OP_REL(<) · PR_SI · OP_REL(==) · PR_IMPRIMIR · OP_ARIT(+) · EOF", parser:"El Parser identifica un ciclo mientras que contiene una condición si, una impresión y una asignación.", ast:"Programa → Declaración(x = 0), Mientras(x < 3) → Si(x == 1) → Imprimir(x), Asignación(x, x + 1).", semantic:"Correcto. x es entero; ambas comparaciones son booleanas.", tac:["ASSIGN 0 → x","LABEL @L1","< x, 3 → @t1","JMP_FALSE @t1 → @L2","== x, 1 → @t2","JMP_FALSE @t2 → @L3","PRINT x","LABEL @L3","+ x, 1 → @t3","ASSIGN @t3 → x","JMP → @L1","LABEL @L2"], vm:"Salidas VM: [1]", result:"Válido · imprime 1 una vez.", runSummary:"El ciclo evalúa x < 3. Dentro de cada vuelta, solo imprime cuando x == 1; después incrementa x." },
+      { id:"04", file:"04_error_falta_punto_coma.txt", title:"Falta punto y coma", category:"sintáctico", errorStage:"parser", description:"El Lexer reconoce los elementos, pero el Parser detecta que termina la declaración sin `;`.", source:`entero x = 10\nimprimir x;`, tokens:"PR_ENTERO · ID(x) · OP_ASIG · NUMERO(10) · PR_IMPRIMIR · ID(x) · EOF", parser:"Error esperado: Línea 2, columna 1: esperado PUNTO_COMA; recibido PR_IMPRIMIR 'imprimir'.", ast:"No se construye el AST porque la estructura del programa no supera el Parser.", semantic:"No se alcanza: el programa se detuvo en el análisis sintáctico.", tac:"No se genera TAC cuando hay un error sintáctico.", vm:"No se ejecuta la VM.", result:"Error sintáctico esperado · falta el punto y coma después de `10`.", runSummary:"El Parser esperaba PUNTO_COMA al terminar la declaración y recibió la palabra imprimir." },
+      { id:"05", file:"05_error_declaracion.txt", title:"Declaración incompleta", category:"sintáctico", errorStage:"parser", description:"Después de la palabra reservada entero debe aparecer un identificador.", source:`entero = 10;`, tokens:"PR_ENTERO · OP_ASIG · NUMERO(10) · PUNTO_COMA · EOF", parser:"Error esperado: Línea 1, columna 8: esperado ID; recibido OP_ASIG '='.", ast:"No se construye el AST: la declaración no tiene nombre de variable.", semantic:"No se alcanza.", tac:"No se genera TAC.", vm:"No se ejecuta la VM.", result:"Error sintáctico esperado · falta el identificador entre `entero` y `=`.", runSummary:"El Parser aplica la regla de declaración: `entero` debe ir seguido por un ID." },
+      { id:"06", file:"06_solo_error_semantico_futuro.txt", title:"Identificador no declarado al imprimir", category:"semántico", errorStage:"semantic", description:"La sintaxis de imprimir es válida, pero el nombre no existe en la tabla de símbolos.", source:`imprimir variable_no_declarada;`, tokens:"PR_IMPRIMIR · ID(variable_no_declarada) · PUNTO_COMA · EOF", parser:"Correcto: la sentencia imprimir tiene una expresión y termina con punto y coma.", ast:"Programa → Imprimir(Identificador(variable_no_declarada)).", semantic:"Error: variable 'variable_no_declarada' no declarada.", tac:"No se genera TAC tras el error semántico.", vm:"No se ejecuta la VM.", result:"Error semántico esperado · el identificador se usa sin declararse.", runSummary:"El análisis de nombres busca el identificador en la tabla de símbolos y no lo encuentra." },
+      { id:"07", file:"07_token_personalizado.txt", title:"Extensión personal: módulo %", category:"extensión personal", errorStage:null, description:"Prueba la extensión `%` en el Lexer, AST, semántica, TAC y VM.", source:`entero numero = 10;\nentero divisor = 3;\nentero residuo = numero % divisor;\n\nsi (residuo == 1) {\n    imprimir residuo;\n}`, tokens:"PR_ENTERO ×3 · ID(numero, divisor, residuo) · OP_MODULO('%') · OP_REL('==') · PR_SI · PR_IMPRIMIR · EOF", parser:"Correcto: el módulo se analiza con la precedencia de multiplicación y división.", ast:"Declaración(residuo, OpBinaria(numero, %, divisor)); Si(residuo == 1) → Imprimir(residuo).", semantic:"Correcto. `%` recibe dos enteros y produce un entero; la comparación produce booleano.", tac:["ASSIGN 10 → numero","ASSIGN 3 → divisor","% numero, divisor → @t1","ASSIGN @t1 → residuo","== residuo, 1 → @t2","JMP_FALSE @t2 → @L1","PRINT residuo","LABEL @L1"], vm:"Salidas VM: [1]", result:"Válido · 10 % 3 produce el residuo 1.", runSummary:"La extensión personal atraviesa todas las fases: token OP_MODULO, nodo OpBinaria, tipo entero, instrucción TAC % y cálculo de la VM." },
+      { id:"08", file:"08_error_variable_no_declarada.txt", title:"Asignación a variable inexistente", category:"semántico", errorStage:"semantic", description:"La asignación es gramaticalmente válida, pero x no fue declarada.", source:`x = 10;`, tokens:"ID(x) · OP_ASIG · NUMERO(10) · PUNTO_COMA · EOF", parser:"Correcto: el Parser reconoce una asignación.", ast:"Programa → Asignación(x, 10).", semantic:"Error: variable 'x' no declarada.", tac:"No se genera TAC.", vm:"No se ejecuta la VM.", result:"Error semántico esperado · no se puede asignar a un nombre desconocido.", runSummary:"El analizador semántico verifica que cada destino de asignación exista en la tabla de símbolos." },
+      { id:"09", file:"09_error_variable_duplicada.txt", title:"Declaración duplicada", category:"semántico", errorStage:"semantic", description:"La segunda declaración intenta volver a introducir x en la tabla global.", source:`entero x = 1;\nentero x = 2;`, tokens:"Dos declaraciones PR_ENTERO · ID(x) · NUMERO · PUNTO_COMA · EOF", parser:"Correcto: las dos declaraciones tienen estructura sintáctica válida.", ast:"Programa → Declaración(x = 1), Declaración(x = 2).", semantic:"Error en línea 2: variable 'x' ya declarada.", tac:"No se genera TAC porque la validación semántica se detiene.", vm:"No se ejecuta la VM.", result:"Error semántico esperado · las variables no pueden declararse dos veces en el ámbito global.", runSummary:"La primera declaración añade x a la tabla; la segunda encuentra que ese nombre ya existe." },
+      { id:"10", file:"10_error_identificador_inexistente.txt", title:"Imprimir nombre desconocido", category:"semántico", errorStage:"semantic", description:"La llamada a imprimir es válida; el identificador fantasma no está declarado.", source:`imprimir fantasma;`, tokens:"PR_IMPRIMIR · ID(fantasma) · PUNTO_COMA · EOF", parser:"Correcto: la expresión de imprimir está formada correctamente.", ast:"Programa → Imprimir(Identificador(fantasma)).", semantic:"Error: variable 'fantasma' no declarada.", tac:"No se genera TAC.", vm:"No se ejecuta la VM.", result:"Error semántico esperado · falta declarar fantasma antes de usarlo.", runSummary:"La semántica revisa el nombre del identificador antes de permitir su uso." },
+      { id:"11", file:"11_error_tipo_incompatible.txt", title:"Inicializador de tipo incompatible", category:"semántico", errorStage:"semantic", description:"La comparación produce booleano, pero x fue declarada como entero.", source:`entero x = 1 < 2;`, tokens:"PR_ENTERO · ID(x) · OP_ASIG · NUMERO · OP_REL(<) · NUMERO · PUNTO_COMA · EOF", parser:"Correcto: el inicializador es una expresión relacional válida.", ast:"Declaración(x, OpBinaria(1, <, 2)).", semantic:"Error: inicialización de 'x' exige 'entero', se recibió 'booleano'.", tac:"No se genera TAC.", vm:"No se ejecuta la VM.", result:"Error semántico esperado · el tipo de la expresión no coincide con el de la variable.", runSummary:"Una comparación devuelve booleano; la declaración entero solo acepta un inicializador entero." },
+      { id:"12", file:"12_error_condicion_no_booleana.txt", title:"Condición si no booleana", category:"semántico", errorStage:"semantic", description:"El cuerpo de si está bien formado, pero la condición es el entero 3.", source:`si (3) { imprimir 1; }`, tokens:"PR_SI · PAR_IZQ · NUMERO(3) · PAR_DER · LLAVE_IZQ · PR_IMPRIMIR · LLAVE_DER · EOF", parser:"Correcto: el Parser reconoce la condición y el bloque.", ast:"Si(Numero(3)) → Imprimir(Numero(1)).", semantic:"Error: la condición de 'si' exige booleano y recibió entero.", tac:"No se genera TAC.", vm:"No se ejecuta la VM.", result:"Error semántico esperado · una condición debe ser una comparación booleana.", runSummary:"La semántica no trata un entero como verdadero o falso; exige una expresión booleana." },
+      { id:"13", file:"13_valido_relacionales.txt", title:"Relacionales y ciclo descendente", category:"válido", errorStage:null, description:"Prueba >= en si y != en mientras; el contador baja hasta cero.", source:`entero x = 3;\nsi (x >= 1) { imprimir x; }\nmientras (x != 0) { x = x - 1; }`, tokens:"PR_ENTERO · OP_REL(>=) · PR_SI · PR_IMPRIMIR · PR_MIENTRAS · OP_REL(!=) · OP_ARIT(-) · EOF", parser:"Correcto: una declaración, un si y un mientras con operadores relacionales.", ast:"Declaración(x=3), Si(x >= 1) → Imprimir(x), Mientras(x != 0) → Asignación(x, x - 1).", semantic:"Correcto. Las comparaciones devuelven booleano; x permanece entero.", tac:["ASSIGN 3 → x",">= x, 1 → @t1","JMP_FALSE @t1 → @L1","PRINT x","LABEL @L1","LABEL @L2","!= x, 0 → @t2","JMP_FALSE @t2 → @L3","- x, 1 → @t3","ASSIGN @t3 → x","JMP → @L2","LABEL @L3"], vm:"Salidas VM: [3]", result:"Válido · imprime 3; el ciclo después actualiza x hasta cero.", runSummary:"La comparación >= permite entrar al si; != controla el ciclo que decrementa x." },
+      { id:"14", file:"14_error_asignacion_tipo.txt", title:"Asignación de booleano a entero", category:"semántico", errorStage:"semantic", description:"x es entero, pero la asignación usa una comparación que produce booleano.", source:`entero x = 5;\nx = 1 < 2;`, tokens:"PR_ENTERO · ID(x) · OP_ASIG · NUMERO · PUNTO_COMA · ID(x) · OP_REL(<) · EOF", parser:"Correcto: la asignación y su expresión relacional son sintácticamente válidas.", ast:"Declaración(x=5); Asignación(x, OpBinaria(1, <, 2)).", semantic:"Error: asignación a 'x' exige entero, se recibió booleano.", tac:"No se genera TAC.", vm:"No se ejecuta la VM.", result:"Error semántico esperado · no se puede almacenar booleano en una variable entera.", runSummary:"El analizador compara el tipo del destino con el tipo que devuelve la expresión." },
+      { id:"15", file:"15_error_uso_antes_declarar.txt", title:"Uso antes de declarar", category:"semántico", errorStage:"semantic", description:"El primer uso de x aparece antes de la declaración que viene después.", source:`imprimir x;\nentero x = 2;`, tokens:"PR_IMPRIMIR · ID(x) · PR_ENTERO · ID(x) · EOF", parser:"Correcto: ambas sentencias tienen estructura sintáctica válida.", ast:"Programa → Imprimir(Identificador(x)), Declaración(x=2).", semantic:"Error en línea 1: variable 'x' no declarada.", tac:"No se genera TAC.", vm:"No se ejecuta la VM.", result:"Error semántico esperado · la declaración posterior no valida el uso anterior.", runSummary:"La semántica recorre las sentencias en orden; x todavía no figura en la tabla al imprimir." },
+      { id:"16", file:"16_error_modulo_booleano.txt", title:"Módulo con operando booleano", category:"semántico", errorStage:"semantic", description:"(1 < 2) produce booleano; el operador módulo requiere dos enteros.", source:`entero residuo = (1 < 2) % 3;`, tokens:"PR_ENTERO · ID(residuo) · PAR_IZQ · NUMERO · OP_REL(<) · NUMERO · OP_MODULO(%) · NUMERO · EOF", parser:"Correcto: el Parser forma una operación módulo cuyo operando izquierdo es una comparación.", ast:"Declaración(residuo, OpBinaria(OpBinaria(1, <, 2), %, 3)).", semantic:"Error: operador '%' exige dos enteros; recibió booleano y entero.", tac:"No se genera TAC porque la semántica detiene el programa.", vm:"No se ejecuta la VM.", result:"Error semántico esperado · el módulo no acepta un booleano.", runSummary:"La comparación interna cambia el tipo a booleano; la semántica rechaza ese operando antes del TAC." },
+      { id:"17", file:"17_modulo_personal.txt", title:"Extensión personal: módulo %", category:"extensión personal", errorStage:null, description:"Caso recomendado para presentar: enseña el recorrido de la extensión personal hasta la VM.", source:`entero numero = 10;\nentero divisor = 3;\nentero residuo = numero % divisor;\n\nsi (residuo == 1) {\n    imprimir residuo;\n}`, tokens:"PR_ENTERO ×3 · OP_MODULO('%') · OP_REL('==') · PR_SI · PR_IMPRIMIR · EOF", parser:"Correcto: % se representa como OpBinaria y respeta la precedencia aritmética.", ast:"Programa → Declaraciones(numero, divisor, residuo=numero%divisor), Si(residuo==1) → Imprimir(residuo).", semantic:"Correcto. numero, divisor y residuo son enteros; la comparación devuelve booleano.", tac:["ASSIGN 10 → numero","ASSIGN 3 → divisor","% numero, divisor → @t1","ASSIGN @t1 → residuo","== residuo, 1 → @t2","JMP_FALSE @t2 → @L1","PRINT residuo","LABEL @L1"], vm:">> SALIDA: 1\nSalidas VM: [1]", result:"Válido · 10 % 3 produce 1; la condición se cumple y el programa imprime el residuo.", runSummary:"Esta extensión cruza Lexer, Parser, AST, semántica, TAC y VM. Es el ejemplo recomendado para la defensa." },
+      { id:"18", file:"18_error_modulo_cero.txt", title:"Divisor cero en la VM", category:"error de ejecución", errorStage:"vm", description:"El análisis semántico solo revisa tipos; la VM detecta el divisor cero cuando ejecuta %.", source:`entero residuo = 10 % 0;\nimprimir residuo;`, tokens:"PR_ENTERO · ID(residuo) · NUMERO(10) · OP_MODULO(%) · NUMERO(0) · PR_IMPRIMIR · EOF", parser:"Correcto: la declaración y la impresión están bien formadas.", ast:"Declaración(residuo, OpBinaria(10, %, 0)); Imprimir(residuo).", semantic:"Correcto por tipos: ambos operandos son enteros. La semántica no calcula valores.", tac:["% 10, 0 → @t1","ASSIGN @t1 → residuo","PRINT residuo"], vm:"Error: [Error VM] Módulo entre cero.", result:"Error de ejecución esperado · el error aparece al calcular la instrucción %.", runSummary:"Este caso enseña la diferencia entre validar tipos y ejecutar valores: el divisor cero se descubre en la VM." },
+      { id:"19", file:"Prueba unitaria · test_error_lexico", title:"Carácter no reconocido @", category:"léxico", errorStage:"lexer", description:"Caso unitario de integración: el símbolo @ no pertenece a los tokens del lenguaje.", source:`entero x = @;`, tokens:"PR_ENTERO · ID(x) · OP_ASIG · carácter desconocido '@'", parser:"No se alcanza: el Lexer detiene la compilación.", ast:"No se construye AST.", semantic:"No se ejecuta análisis semántico.", tac:"No se genera TAC.", vm:"No se ejecuta la VM.", result:"Error léxico esperado · carácter inesperado '@', línea 1, columna 12.", runSummary:"El Lexer reporta el carácter y su ubicación antes de que el Parser reciba tokens." }
+    ];
+
+    const suites = [
+      { title:"Integración · test_integracion.py", count:7, tests:["test_eof","test_valido","test_precedencia","test_error_sintactico","test_error_lexico","test_token_anterior","test_operador_modulo"] },
+      { title:"Semántica · test_semantico.py", count:34, tests:["test_tabla_vacia","test_numero","test_declaracion_valida","test_declaracion_sin_inicializador","test_no_exige_inicializacion","test_duplicada_con_linea","test_autorreferencia","test_no_registra_inicializador_invalido","test_asignacion_valida","test_asignacion_inexistente","test_identificador_inexistente","test_identificador_devuelve_tipo","test_inicializacion_incompatible","test_asignacion_incompatible","test_aritmeticos","test_aritmeticos_rechazan_booleanos_en_ambos_lados","test_relacionales","test_relacion_rechaza_booleano","test_comparacion_encadenada_sigue_siendo_error_sintactico","test_si_valido","test_si_entero_invalido","test_mientras_valido","test_mientras_entero_invalido","test_visita_bloques_sin_ejecutar","test_alcance_global","test_imprimir_identificador_inexistente","test_imprimir_booleano_valido","test_modulo_personal","test_no_evalua_division_ni_modulo","test_no_ejecuta_ciclo","test_negacion_y_precedencia","test_nodo_desconocido","test_operador_desconocido","test_cli_fases_y_error"] },
+      { title:"TAC, VM y CLI · test_tac_vm.py", count:17, tests:["test_aritmetica_asignacion_e_impresion","test_modulo_personal_llega_hasta_la_vm","test_precedencia_modulo_y_multiplicacion","test_negacion_unaria","test_si_ejecuta_solo_si_la_condicion_es_verdadera","test_mientras_recalcula_condicion_en_cada_iteracion","test_operadores_relacionales_retornan_cero_o_uno","test_declaracion_sin_inicializador_no_crea_valor","test_lectura_antes_de_asignar_falla_en_ejecucion","test_modulo_por_cero_falla_en_ejecucion","test_division_por_cero_falla_en_ejecucion","test_limite_de_pasos_detiene_ciclo_infinito","test_etiqueta_de_salto_desconocida","test_etiqueta_duplicada_es_rechazada","test_argumento_de_operacion_desconocido","test_cli_ejecuta_pipeline_y_puntos_de_corte","test_cli_informa_error_de_ejecucion_y_devuelve_codigo_uno"] }
+    ];
+
+    const qna = [
+      ["¿Qué hace el Lexer?", "Convierte el texto fuente en tokens con tipo y ubicación. Por ejemplo, la palabra entero se clasifica como PR_ENTERO y el símbolo % como OP_MODULO."],
+      ["¿Qué valida el Parser?", "Comprueba que los tokens sigan la gramática del lenguaje. Si falta un punto y coma, no construye un AST completo y muestra la posición donde esperaba el token."],
+      ["¿Para qué sirve el AST?", "El Árbol de Sintaxis Abstracta representa el programa por nodos (declaraciones, asignaciones, operaciones y control). Las fases semántica y TAC recorren esos nodos."],
+      ["¿Qué revisa la semántica?", "Controla variables declaradas, nombres duplicados, compatibilidad de tipos y condiciones booleanas. No calcula expresiones ni detecta el valor cero del divisor."],
+      ["¿Qué significa TAC?", "Código de tres direcciones: cada instrucción expresa una operación sencilla con operandos y un resultado. Por ejemplo, ('%', 'numero', 'divisor', '@t1')."],
+      ["¿Qué significan @t1 y @L1?", "@t1 es un temporal para guardar el resultado de una operación. @L1 es una etiqueta de destino que usa JMP o JMP_FALSE."],
+      ["¿Cómo se ejecuta mientras?", "TAC marca una etiqueta al inicio, calcula la condición, usa JMP_FALSE para salir cuando es falsa y vuelve al inicio con JMP después del cuerpo. Así se vuelve a evaluar la condición."],
+      ["¿Por qué 10 % 0 pasa semántica y falla después?", "Los operandos son enteros, así que los tipos son válidos. El error solo se conoce al calcular el residuo; la VM detecta divisor cero y detiene la ejecución."],
+      ["¿Qué valor devuelve una comparación?", "En la semántica, su tipo es booleano. La VM representa verdadero con 1 y falso con 0 para que los saltos puedan decidir el flujo."],
+      ["¿El HTML ejecuta el compilador?", "No invoca Python. Es una guía interactiva con trazas preparadas de los casos existentes. Para ejecución real, copia el comando del caso en PowerShell o terminal."],
+      ["¿Qué hace el límite de pasos?", "Evita que un ciclo infinito deje la VM ejecutándose sin fin. El parámetro --limite-pasos establece el máximo de instrucciones que se permiten."],
+      ["¿Qué salida confirma el caso del módulo?", "10 % 3 da residuo 1. La condición residuo == 1 es verdadera, la VM ejecuta PRINT y agrega 1 a la lista de salidas."]
+    ];
+
+    const glossary = [
+      ["Token", "Unidad léxica reconocida por el Lexer."], ["AST", "Árbol que representa sentencias y expresiones."], ["Tabla de símbolos", "Mapa de nombres declarados a sus tipos."],
+      ["TAC", "Código intermedio con instrucciones de tres direcciones."], ["Temporal @tN", "Espacio interno para el resultado de una operación."], ["Etiqueta @LN", "Destino de una instrucción de salto."],
+      ["JMP_FALSE", "Salta a una etiqueta cuando la condición vale 0."], ["IP", "Puntero de instrucción actual en la máquina virtual."], ["Salida VM", "Valores que el programa entregó a imprimir."]
+    ];
+
+    const $ = (selector, root=document) => root.querySelector(selector);
+    const $$ = (selector, root=document) => [...root.querySelectorAll(selector)];
+    let currentId = "17";
+    let currentFilter = "todos";
+
+    function safeText(value) { return String(value ?? ""); }
+    function caseById(id) { return examples.find(item => item.id === id) || examples[0]; }
+    function showPage(pageId) {
+      $$(".page").forEach(page => page.classList.toggle("active", page.id === `page-${pageId}`));
+      $$(".nav-button").forEach(button => button.classList.toggle("active", button.dataset.page === pageId));
+      if (pageId === "tests") renderCaseBrowser();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+    function renderPipeline() {
+      const target = $("#overviewPipeline");
+      target.replaceChildren();
+      phases.forEach((phase, index) => {
+        const button = document.createElement("button");
+        button.className = "phase-chip";
+        button.type = "button";
+        button.innerHTML = `<span class="phase-index">${index + 1}</span><b>${phase.label}</b><span>${phase.short}</span>`;
+        button.addEventListener("click", () => { showPage("demo"); renderDemo(); runDemo(index); });
+        target.append(button);
+      });
+    }
+    function renderSelect() {
+      const select = $("#caseSelect");
+      select.replaceChildren();
+      const groups = ["válido", "extensión personal", "sintáctico", "semántico", "léxico", "error de ejecución"];
+      groups.forEach(group => {
+        const members = examples.filter(item => item.category === group);
+        if (!members.length) return;
+        const optionGroup = document.createElement("optgroup");
+        optionGroup.label = group[0].toUpperCase() + group.slice(1);
+        members.forEach(item => {
+          const option = document.createElement("option");
+          option.value = item.id;
+          option.textContent = `${item.id} · ${item.title}`;
+          optionGroup.append(option);
+        });
+        select.append(optionGroup);
+      });
+      select.value = currentId;
+    }
+    function statusFor(item, phaseIndex) {
+      if (!item.errorStage) return "done";
+      const errorIndex = phases.findIndex(phase => phase.id === item.errorStage);
+      if (phaseIndex < errorIndex) return "done";
+      if (phaseIndex === errorIndex) return "error";
+      return "skip";
+    }
+    function phaseOutput(item, phase) {
+      const value = phase.id === "lexer" ? item.tokens : item[phase.id];
+      if (Array.isArray(value)) return value.join("\n");
+      return safeText(value || "La fase no produjo una salida independiente para este caso.");
+    }
+    function phaseExplanation(item, phase, state) {
+      if (state === "skip") return `Esta fase no se ejecuta porque el flujo se detuvo en ${item.errorStage}.`;
+      if (state === "error") return item.runSummary;
+      const specific = item[`${phase.id}Note`];
+      if (specific) return specific;
+      if (phase.id === "vm") return item.runSummary;
+      return phase.explain;
+    }
+    function makePhaseCard(item, phase, index) {
+      const state = statusFor(item, index);
+      const stateLabel = state === "done" ? "Superada" : state === "error" ? "Error detectado" : "No alcanzada";
+      const card = document.createElement("article");
+      card.className = `phase-card state-${state}`;
+      card.dataset.phase = phase.id;
+      const head = document.createElement("div");
+      head.className = "phase-head";
+      const title = document.createElement("b");
+      title.textContent = `${index + 1}. ${phase.label}`;
+      const status = document.createElement("span");
+      status.className = "state-label";
+      status.textContent = stateLabel;
+      head.append(title, status);
+      const body = document.createElement("div");
+      body.className = "phase-body";
+      const explanation = document.createElement("p");
+      explanation.textContent = phaseExplanation(item, phase, state);
+      const output = document.createElement("pre");
+      output.className = "phase-output";
+      output.textContent = phaseOutput(item, phase);
+      body.append(explanation, output);
+      card.append(head, body);
+      return card;
+    }
+    function renderDemo() {
+      const item = caseById(currentId);
+      $("#caseSelect").value = item.id;
+      $("#sourceFilename").textContent = item.file;
+      $("#sourceKind").textContent = item.category;
+      $("#sourceCode").textContent = item.source;
+      $("#caseTitle").textContent = item.title;
+      $("#caseDescription").textContent = item.description;
+      $("#caseCommand").textContent = item.command || (item.file.startsWith("Prueba unitaria") ? "python -m unittest pruebas.test_integracion.Integracion.test_error_lexico -v" : `python main.py pruebas/${item.file}`);
+      $("#caseResult").textContent = item.result;
+      const badges = $("#caseBadges");
+      badges.replaceChildren();
+      [item.category, item.errorStage ? `Se detiene en ${phaseTitle(item.errorStage)}` : "Recorrido completo"].forEach((text, index) => {
+        const badge = document.createElement("span");
+        badge.className = `badge${item.errorStage && index === 0 ? " badge-error" : ""}`;
+        badge.textContent = text;
+        badges.append(badge);
+      });
+      const stepper = $("#stepper");
+      stepper.replaceChildren();
+      phases.forEach((phase, index) => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "step-pill";
+        button.textContent = `${index + 1} ${phase.label}`;
+        button.addEventListener("click", () => highlightPhase(phase.id));
+        stepper.append(button);
+      });
+      $("#traceGrid").replaceChildren();
+      $("#traceStatus").textContent = "Pulsa “Simular traza” para comenzar.";
+    }
+    function phaseTitle(id) { return phases.find(phase => phase.id === id)?.label || id; }
+    function highlightPhase(id) {
+      $$(".phase-card").forEach(card => card.classList.toggle("current", card.dataset.phase === id));
+      $$(".step-pill").forEach((button, index) => button.classList.toggle("active", phases[index]?.id === id));
+    }
+    function runDemo(startAt=0) {
+      const item = caseById(currentId);
+      const grid = $("#traceGrid");
+      grid.replaceChildren();
+      const cards = phases.map((phase, index) => makePhaseCard(item, phase, index));
+      cards.forEach(card => grid.append(card));
+      $("#traceStatus").textContent = "Mostrando la ruta de las fases; revisa los estados y la explicación de cada una.";
+      const runButton = $("#runDemo");
+      runButton.disabled = true;
+      runButton.textContent = "Reproduciendo…";
+      cards.forEach((card, index) => setTimeout(() => {
+        card.classList.add("revealed");
+        highlightPhase(phases[index].id);
+        if (index === cards.length - 1) {
+          runButton.disabled = false;
+          runButton.textContent = "▶ Simular traza";
+          $("#traceStatus").textContent = item.errorStage ? `Detención esperada en ${phaseTitle(item.errorStage)}.` : "Recorrido completo hasta la máquina virtual.";
+        }
+      }, Math.max(0, index - startAt) * 170));
+    }
+    function renderCaseBrowser() {
+      const query = $("#caseSearch").value.trim().toLowerCase();
+      const filtered = examples.filter(item => (currentFilter === "todos" || item.category === currentFilter) && `${item.title} ${item.file} ${item.category} ${item.description}`.toLowerCase().includes(query));
+      const list = $("#caseList");
+      list.replaceChildren();
+      if (!filtered.length) {
+        const empty = document.createElement("div"); empty.className = "empty-state"; empty.textContent = "No hay casos que coincidan con la búsqueda."; list.append(empty);
+      }
+      filtered.forEach(item => {
+        const button = document.createElement("button"); button.type = "button"; button.className = `case-row${item.id === currentId ? " selected" : ""}`;
+        const title = document.createElement("strong"); title.textContent = `${item.id} · ${item.title}`;
+        const sub = document.createElement("span"); sub.textContent = `${item.file} · ${item.category}`;
+        button.append(title, sub); button.addEventListener("click", () => { currentId = item.id; renderDemo(); showPage("demo"); }); list.append(button);
+      });
+      const tbody = $("#caseTableBody"); tbody.replaceChildren();
+      filtered.forEach(item => {
+        const row = document.createElement("tr");
+        const values = [item.file, item.category, item.errorStage ? phaseTitle(item.errorStage) : "TAC + VM", item.result];
+        values.forEach(value => { const cell = document.createElement("td"); cell.textContent = value; row.append(cell); });
+        const actionCell = document.createElement("td"); const action = document.createElement("button"); action.type = "button"; action.textContent = "Abrir"; action.addEventListener("click", () => { currentId = item.id; renderDemo(); showPage("demo"); }); actionCell.append(action); row.append(actionCell); tbody.append(row);
+      });
+      $("#caseCountBadge").textContent = `${filtered.length} de ${examples.length} casos`;
+    }
+    function renderFilters() {
+      const holder = $("#filterButtons"); holder.replaceChildren();
+      const filters = ["todos", ...new Set(examples.map(item => item.category))];
+      filters.forEach(filter => {
+        const button = document.createElement("button"); button.type = "button"; button.className = "small-button"; button.textContent = filter[0].toUpperCase() + filter.slice(1);
+        button.setAttribute("aria-pressed", String(currentFilter === filter));
+        if (currentFilter === filter) button.style.background = "var(--mint)";
+        button.addEventListener("click", () => { currentFilter = filter; renderFilters(); renderCaseBrowser(); }); holder.append(button);
+      });
+    }
+    function renderSuites() {
+      const holder = $("#suiteGrid"); holder.replaceChildren();
+      suites.forEach(suite => {
+        const details = document.createElement("details"); details.className = "suite-card";
+        const summary = document.createElement("summary"); summary.textContent = suite.title; const count = document.createElement("span"); count.textContent = `${suite.count} tests`; summary.append(count);
+        const ul = document.createElement("ul"); suite.tests.forEach(test => { const li = document.createElement("li"); li.textContent = test; ul.append(li); }); details.append(summary, ul); holder.append(details);
+      });
+    }
+    function renderQna() {
+      const holder = $("#qnaList"); holder.replaceChildren();
+      qna.forEach(([question, answer], index) => { const details = document.createElement("details"); details.className = "qna"; const summary = document.createElement("summary"); summary.textContent = `${String(index + 1).padStart(2,"0")} · ${question}`; const p = document.createElement("p"); p.textContent = answer; details.append(summary,p); holder.append(details); });
+      const glossaryHolder = $("#glossaryGrid"); glossaryHolder.replaceChildren();
+      glossary.forEach(([term, desc]) => { const item = document.createElement("div"); item.className = "glossary-item"; const b = document.createElement("b"); b.textContent = term; const span = document.createElement("span"); span.textContent = desc; item.append(b,span); glossaryHolder.append(item); });
+    }
+    function phaseOutputForOverview() {
+      renderPipeline();
+      renderSelect();
+      renderDemo();
+      renderFilters();
+      renderCaseBrowser();
+      renderSuites();
+      renderQna();
+    }
+
+    $$(".nav-button").forEach(button => button.addEventListener("click", () => showPage(button.dataset.page)));
+    $$("[data-open-demo]").forEach(button => button.addEventListener("click", () => { currentId = button.dataset.openDemo; renderDemo(); showPage("demo"); runDemo(); }));
+    $("#caseSelect").addEventListener("change", event => { currentId = event.target.value; renderDemo(); });
+    $("#runDemo").addEventListener("click", () => runDemo());
+    $("#resetDemo").addEventListener("click", () => { renderDemo(); });
+    $("#caseSearch").addEventListener("input", renderCaseBrowser);
+    $("#copyCommand").addEventListener("click", async () => {
+      const command = $("#caseCommand").textContent;
+      try { await navigator.clipboard.writeText(command); $("#copyCommand").textContent = "Copiado"; }
+      catch { $("#copyCommand").textContent = "Copia el comando manualmente"; }
+      setTimeout(() => { $("#copyCommand").textContent = "Copiar comando"; }, 1800);
+    });
+    phaseOutputForOverview();
+  </script>
+</body>
+</html>
